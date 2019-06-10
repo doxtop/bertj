@@ -40,8 +40,13 @@ public class BertSpec {
         final Dec<Roster> rosterDecoder = tuple(el(1, list(userDecoder)), el(2, binDec), Roster::new);
 
         final Res<Term> bert = Parser.parse(in);
-        final Roster roster = bert.decode(rosterDecoder).orThrow(RuntimeException::new);
-
+        final Res<Roster> roster = bert.decode(rosterDecoder);
+        
         System.out.println(roster);
+
+        //Term brt = roasterEncoder.encode(roaster);
+        //byte[] -> encode(brt)
+
+        
     }
 }

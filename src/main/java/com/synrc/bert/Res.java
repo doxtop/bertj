@@ -55,9 +55,4 @@ public class Res<T> {
         }
     }
 
-    public T orThrow(F<String, ? extends RuntimeException> supplier) {
-        if (res.isLeft())
-            throw supplier.f(res.left().value());
-        else return res.right().value();
-    }
 }
