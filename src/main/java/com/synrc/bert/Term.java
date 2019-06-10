@@ -14,6 +14,7 @@ abstract class Term {
     public <T> Option<T> bin(F<byte[], T> f) { return none(); }
     public <T> Option<T> tup(F<List<Term>, T> f) { return none(); }
     public <T> Option<T> list(F<List<Term>, T> f) { return none(); }
+    public <T> Option<T> nil(F0<T> f) { return none(); }
 
     public static final class Bin extends Term {
         final byte[] v;
@@ -30,10 +31,11 @@ abstract class Term {
     }
 
     public static final class Tuple extends Term {
-        final fj.data.Array<Term> v;
-        public Tuple(List<Term> v) { this.v = v.toArray(); }
+        final List<Term> v;
+        public Tuple(List<Term> v) { this.v = v; }
 
-        public <T> Option<T> tup(F<List<Term>, T> f) { return Option.some(f.f(v.toList())); }
+        public <T> Option<T> tup(F<List<Term>, T> f) { return Option.some(f.f(v)); }
+        public Tuple ins(int index, Term x) { return new Tuple(v.snoc(x));};
     }
 
     public static final class Array extends Term {
@@ -42,6 +44,10 @@ abstract class Term {
         public Array(List<Term> xs) { this.xs = xs; }
 
         public <T> Option<T> list(F<List<Term>, T> f) { return Option.some(f.f(xs)); }
+    }
+
+    public static final class Nil extends Term {
+        public <T> Option<T> nil(F0<T> f) { return Option.some(f.f()); }
     }
 
 }

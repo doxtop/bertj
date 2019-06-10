@@ -34,7 +34,7 @@ public interface Dec<T> extends F<Term, Res<T>> {
 
     public static <T> ElementDec<T> el(Integer pos, Dec<T> dec) {
         try {
-            return obj -> dec.decode(obj.index(pos)).mapFail(str -> "Failure decoding element " + pos + ": " + str);
+            return obj -> dec.decode(obj.index(pos-1)).mapFail(str -> "Failure decoding element " + (pos-1) + ": " + str);
         } catch(Exception e) {
             return obj -> Res.<T>fail("No element on pos " + pos);
         }

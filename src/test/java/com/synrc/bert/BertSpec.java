@@ -1,9 +1,12 @@
 package com.synrc.bert;
 
 import org.junit.*;
+import fj.*;
 import fj.data.List;
+import java.util.Arrays;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static com.synrc.bert.Dec.*;
+import static com.synrc.bert.Enc.*;
 
 public class BertSpec {
 
@@ -41,12 +44,16 @@ public class BertSpec {
 
         final Res<Term> bert = Parser.parse(in);
         final Res<Roster> roster = bert.decode(rosterDecoder);
-        
-        System.out.println(roster);
+        System.out.println(roster.res);
 
-        //Term brt = roasterEncoder.encode(roaster);
-        //byte[] -> encode(brt)
+        //final Enc<Roster> 
+        Enc<P2<String,String>> rosterEncoder = tuplee(ele(1, nile()), ele(2, nile()));
 
+        System.out.println("=>" + Arrays.toString(Writer.write(rosterEncoder.encode(P.p(null, null))).res.right().value() ));
         
+        System.out.println("encode " + roster.res + " =>");
+        // roster.res.either(
+        //      l -> {System.out.println(l); return l;},
+        //      r -> {System.out.println( Arrays.toString(Writer.write(rosterEncoder.encode(r)).res.right().value()) );return r;});
     }
 }

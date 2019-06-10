@@ -35,15 +35,14 @@ public class Parser {
 
     private Tuple tup() throws IOException {
         final int arity = buffer.get();
-        final Term[] vs = new Term[arity];
+        List<Term> vs = List.nil();
 
-        for (int i=1;i<arity+1;i++) vs[i] = read();
+        for (int i=0;i<arity;i++) vs = vs.cons(read());
 
-        return new Tuple(List.list(vs));
+        return new Tuple(vs.reverse());
     }
 
-    private Array nil() {
-        return new Array(List.nil()); }
+    private Array nil() { return new Array(List.nil()); }
 
     private Array list() throws IOException {
         final int length = buffer.getInt();
