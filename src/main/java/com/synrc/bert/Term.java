@@ -12,7 +12,7 @@ abstract class Term {
 
     public <T> Option<T> str(F<String, T> f) { return none(); }
     public <T> Option<T> bin(F<byte[], T> f) { return none(); }
-    public <T> Option<T> tup(F<TreeMap<Integer, Term>, T> f) { return none(); }
+    public <T> Option<T> tup(F<List<Term>, T> f) { return none(); }
     public <T> Option<T> list(F<List<Term>, T> f) { return none(); }
 
     public static final class Bin extends Term {
@@ -30,13 +30,10 @@ abstract class Term {
     }
 
     public static final class Tuple extends Term {
-        final TreeMap<Integer, Term> pairs;
+        final fj.data.Array<Term> v;
+        public Tuple(List<Term> v) { this.v = v.toArray(); }
 
-        public Tuple(List<P2<Integer, Term>> xs) {
-            this.pairs = TreeMap.iterableTreeMap(Ord.intOrd, xs);
-        }
-
-        public <T> Option<T> tup(F<TreeMap<Integer, Term>, T> f) { return Option.some(f.f(pairs)); }
+        public <T> Option<T> tup(F<List<Term>, T> f) { return Option.some(f.f(v.toList())); }
     }
 
     public static final class Array extends Term {

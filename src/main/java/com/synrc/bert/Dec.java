@@ -2,7 +2,6 @@ package com.synrc.bert;
 
 import fj.*;
 import fj.data.List;
-import fj.data.TreeMap;
 import static fj.P.p;
 
 public interface Dec<T> extends F<Term, Res<T>> {
@@ -14,7 +13,7 @@ public interface Dec<T> extends F<Term, Res<T>> {
     public static final Dec<byte[]> binDec = Term::bin;
 
     public static interface ElementDec<A> {
-        Res<A> apply(TreeMap<Integer, Term> elements);
+        Res<A> apply(List<Term> elements);
     }
 
     public static <S> Dec<List<S>> list(Dec<S> ds) {
@@ -33,9 +32,11 @@ public interface Dec<T> extends F<Term, Res<T>> {
         return elements -> ad.apply(elements).bind(a -> bd.apply(elements).map(b -> p(a, b)));
     }
 
-    public static <A> ElementDec<A> el(Integer pos, Dec<A> dec) {
-        return obj -> obj.get(pos).option(
-            Res.fail("No element on pos " + pos),
-            v -> dec.decode(v).mapFail(str -> "Failure decoding element " + pos + ": " + str));
+    public static <T> ElementDec<T> el(Integer pos, Dec<T> dec) {
+        try {
+            return obj -> dec.decode(obj.index(pos)).mapFail(str -> "Failure decoding element " + pos + ": " + str);
+        } catch(Exception e) {
+            return obj -> Res.<T>fail("No element on pos " + pos);
+        }
     }
 }
