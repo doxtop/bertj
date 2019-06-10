@@ -21,7 +21,7 @@ public interface Dec<T> extends F<Term, Res<T>> {
     }
 
     public static <T, S> Dec<P2<T, S>> tuple(ElementDec<T> a, ElementDec<S> b) {
-        return v -> v.tup(pair(a, b)::apply).orSome(Res.fail("Tuple expected" + v + "."));
+        return v -> v.tup(pair(a, b)::apply).orSome(Res.fail("Tuple expected " + v + "."));
     }
 
     public static <T, S, U> Dec<U> tuple(ElementDec<T> a, ElementDec<S> b, F2<T, S, U> f) {

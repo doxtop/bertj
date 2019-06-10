@@ -13,6 +13,11 @@ public interface Enc<T> extends F<T, Term> {
     }
 
     public static Enc<String> stringEnc = Term::str;
+    public static Enc<byte[]> binEnc = Term::bin;
+
+    public static <T> Enc<List<T>> liste(Enc<T> enc) {
+        return list -> Term.list(list.map(enc::encode));
+    }
 
     public interface ElementEnc<T> {
         Term.Tuple apply(Term.Tuple tuple, T v);

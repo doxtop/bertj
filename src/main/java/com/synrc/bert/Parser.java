@@ -54,7 +54,8 @@ public class Parser {
 
         final Array tail = (Array) read();
         if (!tail.xs.isEmpty()) {
-            list = list.cons(tail);
+            //list = list.cons(new Nil());
+            list = list.cons(tail); // Nil
         }
         return new Array(list.reverse());
     }

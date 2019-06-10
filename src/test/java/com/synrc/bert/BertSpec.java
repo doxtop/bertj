@@ -8,6 +8,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static com.synrc.bert.Dec.*;
 import static com.synrc.bert.Enc.*;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.fail;
+
 public class BertSpec {
 
     class User {
@@ -46,17 +49,23 @@ public class BertSpec {
         final Res<Roster> roster = bert.decode(rosterDecoder);
         System.out.println(roster.res);
 
-        //final Enc<Roster> 
         final Enc<User> userEncoder = tuplee(ele(1, stringEnc), ele(2, stringEnc), user -> P.p(user.org, user.name));
-        //Enc<P2<String,String>> rosterEncoder = tuplee(ele(1, stringEnc), ele(2, stringEnc));
+        final Enc<Roster> rosterEncoder = tuplee(ele(1, liste(userEncoder)), ele(2, binEnc), r -> P.p(r.users, r.status.getBytes(UTF_8)));
 
         final User u = new User("synrc", "dxt");
+        final User u1 = new User("synrc", "5HT");
+        final List<User> l = List.list(u, u1);
+        final Roster r = new Roster(l, "active".getBytes(UTF_8));
 
-        System.out.println("=>" + Arrays.toString(Writer.write(userEncoder.encode(u)).res.right().value() ));
+        System.out.println("=>" + Arrays.toString(Writer.write(rosterEncoder.encode(r)).res.right().value() ));
         
         System.out.println("encode " + roster.res + " =>");
-        // roster.res.either(
-        //      l -> {System.out.println(l); return l;},
-        //      r -> {System.out.println( Arrays.toString(Writer.write(rosterEncoder.encode(r)).res.right().value()) );return r;});
+        roster.res.either(
+              dl -> {fail(dl); return dl;},
+              dr -> {
+                Writer.write(rosterEncoder.encode(dr)).res.either(
+                      el-> {fail(el); return el;},
+                      er -> {assertArrayEquals("dec <-> enc shoud be equal", in, er);return er;});
+                return dr;});
     }
 }

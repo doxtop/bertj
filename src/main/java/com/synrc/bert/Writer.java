@@ -1,6 +1,7 @@
 package com.synrc.bert;
 
 import java.io.*;
+import java.nio.*;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
 public class Writer {
@@ -26,11 +27,31 @@ public class Writer {
                 }
                 return os;
             }))
+            .orElse(bert.bin(bin -> {
+                os.write(109);
+                int len = bin.length;
+                os.write((byte)len >> 24);
+                os.write((byte)len >> 16);
+                os.write((byte)len >> 8);
+                os.write((byte)len);
+                os.write(bin, 0, len);
+                return os;
+            })) 
             .orElse(bert.tup(terms -> {
                 System.out.println("write terms" + terms);
                 os.write(104);
                 os.write((byte)terms.length());
                 terms.foreachDoEffect(t -> write_(t));
+                return os;
+            }))
+            .orElse(bert.list(list -> {
+                os.write(108);
+                int len = list.length()-1;
+                os.write((byte)len >> 24);
+                os.write((byte)len >> 16);
+                os.write((byte)len >> 8);
+                os.write((byte)len);
+                list.foreachDoEffect(t -> write_(t));
                 return os;
             }))
             .map(os -> os.toByteArray())

@@ -11,6 +11,9 @@ abstract class Term {
     public Res<byte[]> bin() { return bin(Res::ok).orSome(Res.fail(this + " is not a binary"));}
 
     public static Term str(String str) { return new Str(str); }
+    public static Term bin(byte[] bin) { return new Bin(bin); }
+    public static Term list(List<Term> list) {return new Array(list.snoc(new Nil()));}
+    //public static Term list(List<Term> list) {return new Array(list);}
 
     public <T> Option<T> str(F<String, T> f) { return none(); }
     public <T> Option<T> bin(F<byte[], T> f) { return none(); }
