@@ -1,6 +1,7 @@
 package com.synrc.bert;
 
 import java.io.*;
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
 public class Writer {
     ByteArrayOutputStream os; //ByteBuffer or byte[]
@@ -10,8 +11,21 @@ public class Writer {
         os.write(-125);
     }
 
-    private byte[] write_(Term bert) {
+    private byte[] write_(Term bert){
         return bert.nil(() -> {os.write(106);return os;})
+            .orElse( bert.str(s -> {
+                os.write(107);// check 65535 bytes 
+                byte[] str = s.getBytes(ISO_8859_1);
+                short len = (short)str.length;
+                os.write((byte) len >> 8);
+                os.write((byte)len);
+                try {
+                    os.write(str);
+                } catch (IOException e){
+                    System.out.println("str not encoded:" + e.getMessage());                    
+                }
+                return os;
+            }))
             .orElse(bert.tup(terms -> {
                 System.out.println("write terms" + terms);
                 os.write(104);

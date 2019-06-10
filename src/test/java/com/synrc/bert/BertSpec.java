@@ -47,9 +47,12 @@ public class BertSpec {
         System.out.println(roster.res);
 
         //final Enc<Roster> 
-        Enc<P2<String,String>> rosterEncoder = tuplee(ele(1, nile()), ele(2, nile()));
+        final Enc<User> userEncoder = tuplee(ele(1, stringEnc), ele(2, stringEnc), user -> P.p(user.org, user.name));
+        //Enc<P2<String,String>> rosterEncoder = tuplee(ele(1, stringEnc), ele(2, stringEnc));
 
-        System.out.println("=>" + Arrays.toString(Writer.write(rosterEncoder.encode(P.p(null, null))).res.right().value() ));
+        final User u = new User("synrc", "dxt");
+
+        System.out.println("=>" + Arrays.toString(Writer.write(userEncoder.encode(u)).res.right().value() ));
         
         System.out.println("encode " + roster.res + " =>");
         // roster.res.either(

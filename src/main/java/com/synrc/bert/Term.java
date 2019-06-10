@@ -10,6 +10,8 @@ abstract class Term {
     public Res<String> str() { return str(Res::ok).orSome(Res.fail(this + " is not a string"));}
     public Res<byte[]> bin() { return bin(Res::ok).orSome(Res.fail(this + " is not a binary"));}
 
+    public static Term str(String str) { return new Str(str); }
+
     public <T> Option<T> str(F<String, T> f) { return none(); }
     public <T> Option<T> bin(F<byte[], T> f) { return none(); }
     public <T> Option<T> tup(F<List<Term>, T> f) { return none(); }

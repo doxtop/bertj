@@ -12,6 +12,8 @@ public interface Enc<T> extends F<T, Term> {
         return v -> this.encode(f.f(v));
     }
 
+    public static Enc<String> stringEnc = Term::str;
+
     public interface ElementEnc<T> {
         Term.Tuple apply(Term.Tuple tuple, T v);
     }
@@ -30,6 +32,10 @@ public interface Enc<T> extends F<T, Term> {
 
     public static <T, S> Enc<P2<T, S>> tuplee(ElementEnc<T> t, ElementEnc<S> s) {
         return p -> and(t, s).apply(new Term.Tuple(List.nil()), p);
+    }
+
+    public static <T,S,U> Enc<U> tuplee(ElementEnc<T> t, ElementEnc<S> s, F<U, P2<T,S>> f) {
+        return tuplee(t,s).contramap(f);
     }
 
     public static <T> ElementEnc<T> ele(int index, Enc<T> enc) {
