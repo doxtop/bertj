@@ -13,6 +13,7 @@ public interface Dec<T> extends F<Term, Res<T>> {
     public static final Dec<byte[]> binDec = Term::bin;
     public static final Dec<Double> floatDec = Term::flt;
     public static final Dec<Byte> byteDec = Term::bt;
+    public static final Dec<Integer> intDec = Term::in;
 
     public static interface ElementDec<A> {
         Res<A> apply(List<Term> elements);
@@ -48,6 +49,15 @@ public interface Dec<T> extends F<Term, Res<T>> {
         return tuple(t,s,u,v).map(tup -> f.f(tup._1(),tup._2(),tup._3(),tup._4()));
     }
 
+    public static <T,S,U,V,W> Dec<P5<T,S,U,V,W>> tuple(ElementDec<T> t, ElementDec<S> s, ElementDec<U> u,ElementDec<V> v, ElementDec<W> w) {
+        return o -> o.tup(tup -> pair(t, pair(s, pair(u, pair(v,w)))).apply(tup).map(Dec::flat5))
+            .orSome(Res.fail("Tuple expected " + o));
+    }
+
+    public static <T,S,U,V,W,X> Dec<X> tuple(ElementDec<T> t, ElementDec<S> s, ElementDec<U> u,ElementDec<V> v, ElementDec<W> w, F5<T,S,U,V,W,X> f) {
+        return tuple(t,s,u,v,w).map(tup -> f.f(tup._1(),tup._2(),tup._3(),tup._4(), tup._5()));
+    }
+
     public static <A, B> ElementDec<P2<A, B>> pair(ElementDec<A> ad, ElementDec<B> bd) {
         return elements -> ad.apply(elements).bind(a -> bd.apply(elements).map(b -> p(a, b)));
     }
@@ -67,5 +77,10 @@ public interface Dec<T> extends F<Term, Res<T>> {
     public static <T,S,U,V> P4<T,S,U,V> flat4(P2<T,P2<S,P2<U,V>>> n) {
         P3<S,U,V> p3 = flat3(n._2());
         return p(n._1(),p3._1(),p3._2(),p3._3());
+    }
+
+    public static <T,S,U,V,W> P5<T,S,U,V,W> flat5(P2<T,P2<S,P2<U,P2<V,W>>>> n) {
+        P4<S,U,V,W> p4 = flat4(n._2());
+        return p(n._1(), p4._1(), p4._2(), p4._3(), p4._4());
     }
 }

@@ -13,10 +13,11 @@ public interface Enc<T> extends F<T, Term> {
         return v -> this.encode(f.f(v));
     }
 
-    public static Enc<String> stringEnc = Term::str;
-    public static Enc<byte[]> binEnc = Term::bin;
-    public static Enc<Double> floatEnc = Term::flt;
-    public static Enc<Byte> byteEnc = Term::bt;
+    public static Enc<String>   stringEnc = Term::str;
+    public static Enc<byte[]>   binEnc  = Term::bin;
+    public static Enc<Double>   floatEnc = Term::flt;
+    public static Enc<Byte>     byteEnc = Term::bt;
+    public static Enc<Integer>  intEnc = Term::in;
 
     public static <T> Enc<List<T>> liste(Enc<T> enc) {
         return list -> Term.list(list.map(enc::encode));
@@ -62,6 +63,14 @@ public interface Enc<T> extends F<T, Term> {
         return tuplee(t,s,u,v).contramap(f);
     }
 
+    public static <T,S,U,V,W> Enc<P5<T,S,U,V,W>> tuplee(ElementEnc<T> t, ElementEnc<S> s, ElementEnc<U> u, ElementEnc<V> v, ElementEnc<W> w) {
+        return o -> and(t, and(s, and(u,and(v,w)))).apply(new Term.Tuple(List.nil()), Enc.ext(o));
+    }
+
+    public static <T,S,U,V,W,X> Enc<X> tuplee(ElementEnc<T> t, ElementEnc<S> s, ElementEnc<U> u, ElementEnc<V> v, ElementEnc<W> w, F<X, P5<T,S,U,V,W>> f) {
+        return tuplee(t,s,u,v,w).contramap(f);
+    }
+
     public static <T> ElementEnc<T> ele(int index, Enc<T> enc) {
         return (tup,v) -> tup.ins(index, enc.encode(v));
     }
@@ -76,6 +85,10 @@ public interface Enc<T> extends F<T, Term> {
 
     public static <T,S,U,V> P2<T,P2<S,P2<U,V>>> ext(P4<T,S,U,V> p) {
         return P.p(p._1(), ext(p(p._2(),p._3(),p._4())));
+    }
+
+    public static <T,S,U,V,W> P2<T,P2<S,P2<U,P2<V,W>>>> ext(P5<T,S,U,V,W> p) {
+        return P.p(p._1(), ext(p(p._2(),p._3(),p._4(),p._5())));
     }
 
 }

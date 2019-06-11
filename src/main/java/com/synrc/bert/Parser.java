@@ -26,6 +26,7 @@ public class Parser {
         switch(buffer.get()) {
             case 70:  return flt();
             case 97:  return bt();
+            case 98:  return in();
             case 104: return tup();
             case 106: return nil();
             case 107: return str();
@@ -33,6 +34,10 @@ public class Parser {
             case 109: return bin();
             default: throw new RuntimeException("BERT?");
         }
+    }
+
+    private In in() {
+        return new In(buffer.getInt());
     }
 
     private Flt flt() throws IOException {

@@ -20,6 +20,17 @@ public class Writer {
                 os.write(b);
                 return os;
             }))
+            .orElse( bert.in(i -> {
+                os.write(98);
+                int v = i.intValue();
+                os.write(new byte[]{
+                    (byte) (v>>24),
+                    (byte) (v>>16),
+                    (byte) (v>> 8),
+                    (byte) v
+                }, 0,4);
+                return os;
+            }))
             .orElse( bert.flt(d -> {
                 long v = Double.doubleToRawLongBits(d);
                 os.write(70);
