@@ -14,6 +14,21 @@ public class Writer {
 
     private byte[] write_(Term bert){
         return bert.nil(() -> {os.write(106);return os;})
+            .orElse( bert.flt(d -> {
+                long v = Double.doubleToRawLongBits(d);
+                os.write(70);
+                os.write(new byte[] {
+                    (byte) (v >> 56),
+                    (byte) (v >> 48),
+                    (byte) (v >> 40),
+                    (byte) (v >> 32),
+                    (byte) (v >> 24),
+                    (byte) (v >> 16),
+                    (byte) (v >> 8),
+                    (byte) v
+                }, 0, 8);
+                return os;
+            }))
             .orElse( bert.str(s -> {
                 os.write(107);// check 65535 bytes 
                 byte[] str = s.getBytes(ISO_8859_1);

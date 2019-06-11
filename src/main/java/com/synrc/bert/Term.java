@@ -9,17 +9,25 @@ abstract class Term {
 
     public Res<String> str() { return str(Res::ok).orSome(Res.fail(this + " is not a string"));}
     public Res<byte[]> bin() { return bin(Res::ok).orSome(Res.fail(this + " is not a binary"));}
+    public Res<Double> flt() { return flt(Res::ok).orSome(Res.fail(this + " is not a float"));}
 
     public static Term str(String str) { return new Str(str); }
     public static Term bin(byte[] bin) { return new Bin(bin); }
     public static Term list(List<Term> list) {return new Array(list.snoc(new Nil()));}
-    //public static Term list(List<Term> list) {return new Array(list);}
+    public static Term flt(Double v) { return new Flt(v);}
 
     public <T> Option<T> str(F<String, T> f) { return none(); }
     public <T> Option<T> bin(F<byte[], T> f) { return none(); }
     public <T> Option<T> tup(F<List<Term>, T> f) { return none(); }
     public <T> Option<T> list(F<List<Term>, T> f) { return none(); }
     public <T> Option<T> nil(F0<T> f) { return none(); }
+    public <T> Option<T> flt(F<Double,T> f) { return none(); }
+
+    public static final class Flt extends Term {
+        final double v;
+        public Flt(double v) { this.v = v;}
+        public <T> Option<T> flt(F<Double,T> f) { return Option.some(f.f(v)); }
+    }
 
     public static final class Bin extends Term {
         final byte[] v;

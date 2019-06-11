@@ -24,6 +24,7 @@ public class Parser {
 
     private Term read() throws IOException {
         switch(buffer.get()) {
+            case 70:  return flt();
             case 104: return tup();
             case 106: return nil();
             case 107: return str();
@@ -31,6 +32,10 @@ public class Parser {
             case 109: return bin();
             default: throw new RuntimeException("BERT?");
         }
+    }
+
+    private Flt flt() throws IOException {
+        return new Flt(buffer.getDouble());
     }
 
     private Tuple tup() throws IOException {

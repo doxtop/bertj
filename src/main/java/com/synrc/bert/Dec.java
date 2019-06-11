@@ -11,6 +11,7 @@ public interface Dec<T> extends F<Term, Res<T>> {
 
     public static final Dec<String> stringDec = Term::str;
     public static final Dec<byte[]> binDec = Term::bin;
+    public static final Dec<Double> floatDec = Term::flt;
 
     public static interface ElementDec<A> {
         Res<A> apply(List<Term> elements);
@@ -20,12 +21,21 @@ public interface Dec<T> extends F<Term, Res<T>> {
         return term -> term.list(list -> Res.seq(list.map(ds))).orSome(Res.fail(term + " isn't a list"));
     }
 
-    public static <T, S> Dec<P2<T, S>> tuple(ElementDec<T> a, ElementDec<S> b) {
-        return v -> v.tup(pair(a, b)::apply).orSome(Res.fail("Tuple expected " + v + "."));
+    public static <T, S> Dec<P2<T,S>> tuple(ElementDec<T> t, ElementDec<S> s) {
+        return v -> v.tup(pair(t, s)::apply).orSome(Res.fail("Tuple expected " + v + "."));
     }
 
-    public static <T, S, U> Dec<U> tuple(ElementDec<T> a, ElementDec<S> b, F2<T, S, U> f) {
-        return tuple(a, b).map(t -> f.f(t._1(), t._2()));
+    public static <T, S, U> Dec<U> tuple(ElementDec<T> t, ElementDec<S> s, F2<T, S, U> f) {
+        return tuple(t, s).map(tup -> f.f(tup._1(), tup._2()));
+    }
+
+    public static <T, S, U> Dec<P3<T,S,U>> tuple(ElementDec<T> t, ElementDec<S> s, ElementDec<U> u) {
+        return v -> v.tup(tup -> pair(t, pair(s,u)).apply(tup).map(Dec::flat))
+            .orSome(Res.fail("Tuple expected " + v  +"."));
+    }
+
+    public static <T,S,U,V> Dec<V> tuple(ElementDec<T> t, ElementDec<S> s, ElementDec<U> u, F3<T,S,U,V> f) {
+        return tuple(t,s,u).map(tup -> f.f(tup._1(),tup._2(),tup._3()));
     }
 
     public static <A, B> ElementDec<P2<A, B>> pair(ElementDec<A> ad, ElementDec<B> bd) {
@@ -38,5 +48,9 @@ public interface Dec<T> extends F<Term, Res<T>> {
         } catch(Exception e) {
             return obj -> Res.<T>fail("No element on pos " + pos);
         }
+    }
+
+    public static <A, B, C> P3<A, B, C> flat(P2<A, P2<B, C>> n) {
+        return p(n._1(), n._2()._1(), n._2()._2());
     }
 }
