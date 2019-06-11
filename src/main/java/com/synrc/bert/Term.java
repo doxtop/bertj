@@ -9,15 +9,16 @@ abstract class Term {
 
     public Res<String>  str() { return str(Res::ok).orSome(Res.fail(this + " is not a string"));}
     public Res<byte[]>  bin() { return bin(Res::ok).orSome(Res.fail(this + " is not a binary"));}
-    public Res<Double>  flt() { return flt(Res::ok).orSome(Res.fail(this + " is not a float"));}
+    public Res<Double>  float754() { return float754(Res::ok).orSome(Res.fail(this + " is not a float"));}
+    public Res<Double>  floatStr() { return floatStr(Res::ok).orSome(Res.fail(this + " is not a float"));}
     public Res<Byte>    bt()  { return bt(Res::ok).orSome(Res.fail(this + " is not a byte"));}
     public Res<Integer> in()  { return in(Res::ok).orSome(Res.fail(this + " is not a integer"));}
 
     public static Term str(String str) { return new Str(str); }
     public static Term bin(byte[] bin) { return new Bin(bin); }
     public static Term list(List<Term> l) {return new Array(l.snoc(new Nil()));}
-    public static Term flt(Double v) { return new Flt(v);}
-    public static Term flt(Integer v) { return new Flt(v);}
+    public static Term float754(Double v) { return new Fload754(v);}
+    public static Term floatStr(Double v) { return new FloatStr(v);}
     public static Term bt(Byte v) { return new Bt(v.byteValue());}
     public static Term in(Integer v) { return new In(v.intValue());}
 
@@ -26,7 +27,8 @@ abstract class Term {
     public <T> Option<T> tup(F<List<Term>, T> f) { return none(); }
     public <T> Option<T> list(F<List<Term>, T> f) { return none(); }
     public <T> Option<T> nil(F0<T> f) { return none(); }
-    public <T> Option<T> flt(F<Double,T> f) { return none(); }
+    public <T> Option<T> float754(F<Double,T> f) { return none(); }
+    public <T> Option<T> floatStr(F<Double,T> f) { return none(); }
     public <T> Option<T> bt(F<Byte,T> f) { return none(); }
     public <T> Option<T> in(F<Integer,T> f) { return none(); }
 
@@ -42,10 +44,16 @@ abstract class Term {
         public <T> Option<T> bt(F<Byte,T> f) { return Option.some(f.f(v)); }
     }
 
-    public static final class Flt extends Term {
+    public static final class Fload754 extends Term {
         final double v;
-        public Flt(double v) {  this.v = v; }
-        public <T> Option<T> flt(F<Double,T> f) { return Option.some(f.f(v)); }
+        public Fload754(double v) {  this.v = v; }
+        public <T> Option<T> float754(F<Double,T> f) { return Option.some(f.f(v)); }
+    }
+
+    public static final class FloatStr extends Term {
+        final double v;
+        public FloatStr(double v) {  System.out.println("parsed " +v);this.v = v; }
+        public <T> Option<T> floatStr(F<Double,T> f) { return Option.some(f.f(v)); }
     }
 
     public static final class Bin extends Term {

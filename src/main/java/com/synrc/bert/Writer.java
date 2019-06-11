@@ -23,15 +23,31 @@ public class Writer {
             .orElse( bert.in(i -> {
                 os.write(98);
                 int v = i.intValue();
-                os.write(new byte[]{
-                    (byte) (v>>24),
-                    (byte) (v>>16),
-                    (byte) (v>> 8),
-                    (byte) v
-                }, 0,4);
+                os.write(new byte[] {
+                     (byte) (v>>24),
+                     (byte) (v>>16),
+                     (byte) (v>> 8),
+                     (byte) v
+                 }, 0,4);
                 return os;
             }))
-            .orElse( bert.flt(d -> {
+            .orElse( bert.floatStr(d -> {
+                os.write(99);
+                System.out.println("write 99 " + d);
+                final String s = String.format("%.20e", d);
+                System.out.println("str: " + s);
+                byte[] fl = s.getBytes();
+                ByteBuffer buf = ByteBuffer.allocate(31).order(ByteOrder.BIG_ENDIAN);
+                buf.put(fl);
+                System.out.println("Write 99 float:" + Arrays.toString(buf.array()));
+                try {
+                     os.write(buf.array());
+                } catch(Exception e) {
+                     System.out.println("float is not encoded: " + e.getMessage());
+                }
+                return os;
+            }))
+            .orElse( bert.float754(d -> {
                 long v = Double.doubleToRawLongBits(d);
                 os.write(70);
                 byte[] ba = new byte[] {

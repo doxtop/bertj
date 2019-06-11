@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import static com.synrc.bert.Term.*;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class Parser {
     final ByteBuffer buffer;
@@ -24,9 +25,10 @@ public class Parser {
 
     private Term read() throws IOException {
         switch(buffer.get()) {
-            case 70:  return flt();
+            case 70:  return float754();
             case 97:  return bt();
             case 98:  return in();
+            case 99:  return floatStr();
             case 104: return tup();
             case 106: return nil();
             case 107: return str();
@@ -40,8 +42,18 @@ public class Parser {
         return new In(buffer.getInt());
     }
 
-    private Flt flt() throws IOException {
-        return new Flt(buffer.getDouble());
+    private FloatStr floatStr() {
+        byte[] fs = new byte[31];
+        buffer.get(fs);
+        String s = new String(fs);
+        
+        System.out.println("parse => " + s);
+        System.out.println("parse => " + Arrays.toString(s.getBytes(UTF_8)));
+        return new FloatStr(Double.parseDouble(s));
+    }
+
+    private Fload754 float754() throws IOException {
+        return new Fload754(buffer.getDouble());
     }
     private Bt bt() {
         return new Bt(buffer.get());
