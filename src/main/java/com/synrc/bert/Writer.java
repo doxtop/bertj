@@ -2,6 +2,7 @@ package com.synrc.bert;
 
 import java.io.*;
 import java.nio.*;
+import java.util.Arrays;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
 public class Writer {
@@ -14,10 +15,15 @@ public class Writer {
 
     private byte[] write_(Term bert){
         return bert.nil(() -> {os.write(106);return os;})
+            .orElse( bert.bt(b -> {
+                os.write(97);
+                os.write(b);
+                return os;
+            }))
             .orElse( bert.flt(d -> {
                 long v = Double.doubleToRawLongBits(d);
                 os.write(70);
-                os.write(new byte[] {
+                byte[] ba = new byte[] {
                     (byte) (v >> 56),
                     (byte) (v >> 48),
                     (byte) (v >> 40),
@@ -26,7 +32,8 @@ public class Writer {
                     (byte) (v >> 16),
                     (byte) (v >> 8),
                     (byte) v
-                }, 0, 8);
+                };
+                os.write(ba, 0, 8);
                 return os;
             }))
             .orElse( bert.str(s -> {
@@ -53,7 +60,6 @@ public class Writer {
                 return os;
             })) 
             .orElse(bert.tup(terms -> {
-                System.out.println("write terms" + terms);
                 os.write(104);
                 os.write((byte)terms.length());
                 terms.foreachDoEffect(t -> write_(t));
