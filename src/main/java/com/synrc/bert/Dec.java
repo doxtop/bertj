@@ -2,6 +2,7 @@ package com.synrc.bert;
 
 import fj.*;
 import fj.data.List;
+import fj.data.Option;
 import static fj.P.p;
 import java.math.BigDecimal;
 
@@ -26,8 +27,16 @@ public interface Dec<T> extends F<Term, Res<T>> {
         return term -> term.list(list -> Res.seq(list.map(ds))).orSome(Res.fail(term + " isn't a list"));
     }
 
+    public static <T> Dec<P1<T>> tuple(ElementDec<T> td) {
+        return o -> o.tup(l -> td.apply(l).map(e -> P.p(e))).orSome(Res.fail("Tuple expected " + o));
+    }
+
+    public static <T,S> Dec<S> tuple(ElementDec<T> t, F<T,S> f) {
+        return tuple(t).map(tup -> f.f(tup._1()));
+    }
+
     public static <T, S> Dec<P2<T,S>> tuple(ElementDec<T> t, ElementDec<S> s) {
-        return v -> v.tup(pair(t, s)::apply).orSome(Res.fail("Tuple expected " + v));
+        return o -> o.tup(pair(t, s)::apply).orSome(Res.fail("Tuple expected " + o));
     }
 
     public static <T, S, U> Dec<U> tuple(ElementDec<T> t, ElementDec<S> s, F2<T, S, U> f) {
@@ -70,8 +79,17 @@ public interface Dec<T> extends F<Term, Res<T>> {
         return tuple(t,s,u,v,w,x).map(tup -> f.f(tup._1(),tup._2(),tup._3(),tup._4(), tup._5(), tup._6()));
     }
 
-    public static <A, B> ElementDec<P2<A, B>> pair(ElementDec<A> ad, ElementDec<B> bd) {
-        return elements -> ad.apply(elements).bind(a -> bd.apply(elements).map(b -> p(a, b)));
+    public static <T,S,U,V,W,X,Y> Dec<P7<T,S,U,V,W,X,Y>> tuple(ElementDec<T> t, ElementDec<S> s, ElementDec<U> u,ElementDec<V> v, ElementDec<W> w,ElementDec<X> x,ElementDec<Y> y) {
+        return o -> o.tup(tup -> pair(t, pair(s, pair(u, pair(v, pair(w, pair(x,y)))))).apply(tup).map(Dec::flat7))
+            .orSome(Res.fail("Tuple expected " + o));
+    }
+
+    public static <T,S,U,V,W,X,Y,Z> Dec<Z> tuple(ElementDec<T> t, ElementDec<S> s, ElementDec<U> u,ElementDec<V> v, ElementDec<W> w,ElementDec<X> x, ElementDec<Y> y, F7<T,S,U,V,W,X,Y,Z> f) {
+        return tuple(t,s,u,v,w,x,y).map(tup -> f.f(tup._1(),tup._2(),tup._3(),tup._4(), tup._5(), tup._6(), tup._7()));
+    }
+
+    public static <T, S> ElementDec<P2<T, S>> pair(ElementDec<T> td, ElementDec<S> sd) {
+        return o -> td.apply(o).bind(t -> sd.apply(o).map(s -> p(t, s)));
     }
 
     public static <T> ElementDec<T> el(Integer pos, Dec<T> dec) {
@@ -100,4 +118,10 @@ public interface Dec<T> extends F<Term, Res<T>> {
         P5<S,U,V,W,X> p5 = flat5(n._2());
         return p(n._1(), p5._1(), p5._2(), p5._3(), p5._4(), p5._5());
     }
+
+    public static <T,S,U,V,W,X,Y> P7<T,S,U,V,W,X,Y> flat7(P2<T,P2<S,P2<U,P2<V,P2<W,P2<X,Y>>>>>> n) {
+        P6<S,U,V,W,X,Y> p6 = flat6(n._2());
+        return p(n._1(), p6._1(), p6._2(), p6._3(), p6._4(), p6._5(),p6._6());
+    }
+
 }

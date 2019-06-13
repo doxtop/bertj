@@ -28,6 +28,7 @@ abstract class Term {
     public <T> Option<T> str(F<String, T> f) { return none(); }
     public <T> Option<T> bin(F<byte[], T> f) { return none(); }
     public <T> Option<T> tup(F<List<Term>, T> f) { return none(); }
+    public <T> Option<T> tupL(F<List<Term>, T> f) { return none(); }
     public <T> Option<T> list(F<List<Term>, T> f) { return none(); }
     public <T> Option<T> nil(F0<T> f) { return none(); }
     public <T> Option<T> float754(F<Double,T> f) { return none(); }
@@ -37,6 +38,7 @@ abstract class Term {
     public <T> Option<T> atom(F<String,T> f) {return none();}
 
     public static final class Atom extends Term {
+        // latin1 - in minor_version 0,1. 2 in utf8
         final String v;
         public Atom(String v){ this.v=v;}
         public <T> Option<T> atom(F<String,T> f) {return Option.some(f.f(v));}
@@ -62,7 +64,7 @@ abstract class Term {
 
     public static final class FloatStr extends Term {
         final BigDecimal v;
-        public FloatStr(BigDecimal v) {  System.out.println("parsed " +v);this.v = v; }
+        public FloatStr(BigDecimal v) { this.v = v; }
         public <T> Option<T> floatStr(F<BigDecimal,T> f) { return Option.some(f.f(v)); }
     }
 
@@ -80,12 +82,20 @@ abstract class Term {
         public <T> Option<T> str(F<String, T> f) { return Option.some(f.f(v)); }
     }
 
-    public static final class Tuple extends Term {
+    public static class Tuple extends Term {
         final List<Term> v;
         public Tuple(List<Term> v) { this.v = v; }
 
         public <T> Option<T> tup(F<List<Term>, T> f) { return Option.some(f.f(v)); }
+        public <T> Option<T> tupL(F<List<Term>, T> f) { return none(); }
         public Tuple ins(int index, Term x) { return new Tuple(v.snoc(x));};
+    }
+    
+    public static final class TupleL extends Tuple{
+        public TupleL(List<Term> v){ super(v); }
+        public <T> Option<T> tup(F<List<Term>, T> f) { return none(); }
+        public <T> Option<T> tupL(F<List<Term>, T> f) { return Option.some(f.f(v)); }
+        public TupleL ins(int index, Term x) { return new TupleL(v.snoc(x));};
     }
 
     public static final class Array extends Term {

@@ -31,25 +31,29 @@ public class BertSpec {
         byte bi;
         int i;
         String atom;
+        List<String> tup;
 
-        Roster(List<User>users, byte[] status, BigDecimal pi, byte bi, int i, String atom) {
+        Roster(List<User>users, byte[] status, BigDecimal pi, byte bi, int i, String atom, List<String> tup) {
             this.users=users;
             this.status=new String(status, UTF_8);
             this.pi = pi;
             this.bi = bi;
             this.i = i;
             this.atom = atom;
+            this.tup = tup;
         }
 
-        @Override public String toString() { return "Roaster[" + users + ", " + status + ", " + pi + ", " + bi + ", " + i + ", " + atom +"]"; }
+        @Override public String toString() { return "Roaster[" + users + ", " + status + ", " + pi + 
+            ", " + bi + ", " + i + ", " + atom +
+            "," + tup + "]"; }
     }
 
     @Test
     public void bert() {
-        System.out.println("decode {[{\"synrc\",\"dxt\"}, {\"synrc\",\"5HT\"}],<<\"active\">>,3.14,128, ok} =>");
+        System.out.println("decode {[{\"synrc\",\"dxt\"}, {\"synrc\",\"5HT\"}],<<\"active\">>,3.14,128, ok, {ok}} =>");
 
         byte[] in = {// [{minor_version, 0}]
-            (byte)131,104,6,
+            (byte)131,104,7,
                 108,0,0,0,2,104,2,107,0,5,115,121,110,114,99,107,0,3,100,120,116,
                 104,2,107,0,5,115,121,110,114,99,
                 107,0,3,53,72,84,106,
@@ -58,19 +62,35 @@ public class BertSpec {
                 99,51,46,49,52,48,48,48,48,48,48,48,48,48,48,48,48,48,49,50,52,51,52,101,43,48,48,0,0,0,0,0,
                 97,(byte)128,
                 98,127,(byte)255,(byte)255,(byte)255,
-                100,0,2,111,107};
+                100,0,2,111,107,
+                105,0,0,0,1,100,0,2,111,107};
 
         // map tuples to object with decoder combinations
+        final F<String, List<String>> f = a -> List.<String>nil().cons(a);
+        final Dec<List<String>>  innerDecoder = tuple(el(1,atomDec), f);
         final Dec<User> userDecoder     = tuple(el(1, stringDec), el(2, stringDec), User::new);
-        final Dec<Roster> rosterDecoder = tuple(el(1, list(userDecoder)), el(2, binDec), el(3,floatSrtDec), el(4,byteDec), el(5, intDec), el(6, atomDec), Roster::new);
+        final Dec<Roster> rosterDecoder = tuple(el(1, list(userDecoder)), 
+            el(2, binDec),
+            el(3,floatSrtDec),
+            el(4,byteDec),
+            el(5, intDec),
+            el(6, atomDec),
+            el(7, innerDecoder), Roster::new);
 
         final Res<Term> bert = Parser.parse(in);
         final Res<Roster> roster = bert.decode(rosterDecoder);
         System.out.println("Decoded: " + roster.res);
 
+        final Enc<List<String>> listEncoder = tupleel(ele(1, atomEnc), l -> l.head());
         final Enc<User> userEncoder = tuplee(ele(1, stringEnc), ele(2, stringEnc), user -> P.p(user.org, user.name));
-        final Enc<Roster> rosterEncoder = tuplee(ele(1, liste(userEncoder)), ele(2, binEnc), ele(3, floatStrEnc), ele(4, byteEnc), ele(5, intEnc), ele(6, atomEnc),
-            r -> P.p(r.users, r.status.getBytes(UTF_8), r.pi, r.bi, r.i, r.atom));
+        final Enc<Roster> rosterEncoder = tuplee(ele(1, liste(userEncoder)), 
+            ele(2, binEnc),
+            ele(3, floatStrEnc),
+            ele(4, byteEnc),
+            ele(5, intEnc),
+            ele(6, atomEnc),
+            ele(7, listEncoder),
+            r -> P.p(r.users, r.status.getBytes(UTF_8), r.pi, r.bi, r.i, r.atom, r.tup));
 
         //final User u = new User("synrc", "dxt");
         //final User u1 = new User("synrc", "5HT");

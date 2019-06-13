@@ -14,7 +14,11 @@ public class Writer {
     }
 
     private byte[] write_(Term bert){
-        return bert.nil(() -> {os.write(106);return os;})
+        return bert.nil(() -> {
+                System.out.println("write nill");
+                os.write(106);
+                return os;
+            })
             .orElse( bert.bt(b -> {
                 os.write(97);
                 os.write(b);
@@ -45,12 +49,12 @@ public class Writer {
                 return os;
             }))
             .orElse( bert.atom(s -> {
+                System.out.println("write atom " + s);
                 // check latin1 and 255 len
                 os.write(100);
                 byte[] atom = s.getBytes(ISO_8859_1);
                 short len = (short)s.length();
                 if(len > 255) throw new RuntimeException("atom " + s + "to long");
-                System.out.println("atom " + s + ", len:" + len);
                 os.write((byte) len >> 8);
                 os.write((byte) len);
                 try{
@@ -58,6 +62,30 @@ public class Writer {
                 }catch(IOException e){
                     System.out.println("atom not encoded:" + e.getMessage());
                 }
+                return os;
+            }))
+            .orElse( bert.tupL(terms -> {
+                System.out.println("Write big tuple :" + terms);
+                os.write(105);
+                int len = terms.length();
+                os.write((byte)len >> 24);
+                os.write((byte)len >> 16);
+                os.write((byte)len >> 8);
+                os.write((byte)len);
+                
+                terms.foreachDoEffect(t -> write_(t));
+
+                return os;
+            }))
+            .orElse(bert.tup(terms -> {
+                System.out.println("write small tuple " + terms);
+                os.write(104);
+                os.write((byte)terms.length());
+                terms.foreachDoEffect(t -> {
+                    System.out.println("\telement:"  + t + "of " + bert);
+                    write_(t);
+                    }
+                );
                 return os;
             }))
             .orElse( bert.float754(d -> {
@@ -99,12 +127,6 @@ public class Writer {
                 os.write(bin, 0, len);
                 return os;
             })) 
-            .orElse(bert.tup(terms -> {
-                os.write(104);
-                os.write((byte)terms.length());
-                terms.foreachDoEffect(t -> write_(t));
-                return os;
-            }))
             .orElse(bert.list(list -> {
                 os.write(108);
                 int len = list.length()-1;

@@ -34,6 +34,7 @@ public class Parser {
             case 99:  return floatStr();
             case 100: return atom();
             case 104: return tup();
+            case 105: return tupL();
             case 106: return nil();
             case 107: return str();
             case 108: return list();
@@ -61,7 +62,6 @@ public class Parser {
         DecimalFormat fmt = new DecimalFormat();
         fmt.setParseBigDecimal(true);
         bd = (BigDecimal) fmt.parse(s);
-        System.out.println("bd =>" + bd.toPlainString());
         return new FloatStr(bd);
     }
 
@@ -79,6 +79,15 @@ public class Parser {
         for (int i=0;i<arity;i++) vs = vs.cons(read());
 
         return new Tuple(vs.reverse());
+    }
+
+    private Tuple tupL() throws IOException, ParseException {
+        final int arity = buffer.getInt();
+        List<Term> vs = List.nil();
+
+        for (int i=0;i<arity;i++) vs = vs.cons(read());
+
+        return new TupleL(vs.reverse());
     }
 
     private Array nil() { return new Array(List.nil()); }

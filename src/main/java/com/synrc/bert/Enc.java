@@ -34,6 +34,16 @@ public interface Enc<T> extends F<T, Term> {
         return (tuple, t) -> fs.apply(ft.apply(tuple, t._1()), t._2());
     }
 
+    // term_to_binary will not produce large tuple for small one, quick shit here
+    public static <T> Enc<T> tupleel(ElementEnc<T> e) {
+        System.out.println("encode tuple l");
+        return x -> e.apply(new Term.TupleL(List.nil()), x);
+    }
+    public static <T,S> Enc<S> tupleel(ElementEnc<T> e, F<S,T> f){
+        System.out.println("map f on tuple l");
+        return tupleel(e).contramap(f);
+    }
+
     public static <T> Enc<T> tuplee(ElementEnc<T> e){
         return x -> e.apply(new Term.Tuple(List.nil()), x);
     }
@@ -74,12 +84,20 @@ public interface Enc<T> extends F<T, Term> {
         return tuplee(t,s,u,v,w).contramap(f);
     }
 
-    public static <T,S,U,V,W,X,Y> Enc<P6<T,S,U,V,W,X>> tuplee(ElementEnc<T> t, ElementEnc<S> s, ElementEnc<U> u, ElementEnc<V> v, ElementEnc<W> w, ElementEnc<X> x){
+    public static <T,S,U,V,W,X> Enc<P6<T,S,U,V,W,X>> tuplee(ElementEnc<T> t, ElementEnc<S> s, ElementEnc<U> u, ElementEnc<V> v, ElementEnc<W> w, ElementEnc<X> x){
         return o -> and(t, and(s, and(u, and(v, and(w, x))))).apply(new Term.Tuple(List.nil()), Enc.ext(o));
     }
 
     public static <T,S,U,V,W,X,Y> Enc<Y> tuplee(ElementEnc<T> t, ElementEnc<S> s, ElementEnc<U> u, ElementEnc<V> v, ElementEnc<W> w, ElementEnc<X> x, F<Y,P6<T,S,U,V,W,X>> f){
         return tuplee(t,s,u,v,w,x).contramap(f);        
+    }
+
+    public static <T,S,U,V,W,X,Y> Enc<P7<T,S,U,V,W,X,Y>> tuplee(ElementEnc<T> t, ElementEnc<S> s, ElementEnc<U> u, ElementEnc<V> v, ElementEnc<W> w, ElementEnc<X> x,ElementEnc<Y> y){
+        return o -> and(t, and(s, and(u, and(v, and(w, and(x, y)))))).apply(new Term.Tuple(List.nil()), Enc.ext(o));
+    }
+
+    public static <T,S,U,V,W,X,Y,Z> Enc<Z> tuplee(ElementEnc<T> t, ElementEnc<S> s, ElementEnc<U> u, ElementEnc<V> v, ElementEnc<W> w, ElementEnc<X> x,ElementEnc<Y> y, F<Z,P7<T,S,U,V,W,X,Y>> f){
+        return tuplee(t,s,u,v,w,x,y).contramap(f);        
     }
 
     public static <T> ElementEnc<T> ele(int index, Enc<T> enc) {
@@ -104,6 +122,10 @@ public interface Enc<T> extends F<T, Term> {
 
     public static <T,S,U,V,W,X> P2<T,P2<S,P2<U,P2<V,P2<W,X>>>>> ext(P6<T,S,U,V,W,X> p) {
         return P.p(p._1(), ext(p(p._2(),p._3(),p._4(),p._5(), p._6())));
+    }
+
+    public static <T,S,U,V,W,X,Y> P2<T,P2<S,P2<U,P2<V,P2<W,P2<X,Y>>>>>> ext(P7<T,S,U,V,W,X,Y> p) {
+        return P.p(p._1(), ext(p(p._2(),p._3(),p._4(),p._5(), p._6(), p._7())));
     }
 
 }
