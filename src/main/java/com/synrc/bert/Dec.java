@@ -16,6 +16,7 @@ public interface Dec<T> extends F<Term, Res<T>> {
     public static final Dec<BigDecimal> floatSrtDec = Term::floatStr;
     public static final Dec<Byte> byteDec = Term::bt;
     public static final Dec<Integer> intDec = Term::in;
+    public static final Dec<String> atomDec = Term::atom;
 
     public static interface ElementDec<A> {
         Res<A> apply(List<Term> elements);
@@ -60,6 +61,15 @@ public interface Dec<T> extends F<Term, Res<T>> {
         return tuple(t,s,u,v,w).map(tup -> f.f(tup._1(),tup._2(),tup._3(),tup._4(), tup._5()));
     }
 
+    public static <T,S,U,V,W,X> Dec<P6<T,S,U,V,W,X>> tuple(ElementDec<T> t, ElementDec<S> s, ElementDec<U> u,ElementDec<V> v, ElementDec<W> w,ElementDec<X> x) {
+        return o -> o.tup(tup -> pair(t, pair(s, pair(u, pair(v, pair(w,x))))).apply(tup).map(Dec::flat6))
+            .orSome(Res.fail("Tuple expected " + o));
+    }
+
+    public static <T,S,U,V,W,X,Y> Dec<Y> tuple(ElementDec<T> t, ElementDec<S> s, ElementDec<U> u,ElementDec<V> v, ElementDec<W> w,ElementDec<X> x, F6<T,S,U,V,W,X,Y> f) {
+        return tuple(t,s,u,v,w,x).map(tup -> f.f(tup._1(),tup._2(),tup._3(),tup._4(), tup._5(), tup._6()));
+    }
+
     public static <A, B> ElementDec<P2<A, B>> pair(ElementDec<A> ad, ElementDec<B> bd) {
         return elements -> ad.apply(elements).bind(a -> bd.apply(elements).map(b -> p(a, b)));
     }
@@ -84,5 +94,10 @@ public interface Dec<T> extends F<Term, Res<T>> {
     public static <T,S,U,V,W> P5<T,S,U,V,W> flat5(P2<T,P2<S,P2<U,P2<V,W>>>> n) {
         P4<S,U,V,W> p4 = flat4(n._2());
         return p(n._1(), p4._1(), p4._2(), p4._3(), p4._4());
+    }
+
+    public static <T,S,U,V,W,X> P6<T,S,U,V,W,X> flat6(P2<T,P2<S,P2<U,P2<V,P2<W,X>>>>> n) {
+        P5<S,U,V,W,X> p5 = flat5(n._2());
+        return p(n._1(), p5._1(), p5._2(), p5._3(), p5._4(), p5._5());
     }
 }

@@ -44,6 +44,22 @@ public class Writer {
                 }
                 return os;
             }))
+            .orElse( bert.atom(s -> {
+                // check latin1 and 255 len
+                os.write(100);
+                byte[] atom = s.getBytes(ISO_8859_1);
+                short len = (short)s.length();
+                if(len > 255) throw new RuntimeException("atom " + s + "to long");
+                System.out.println("atom " + s + ", len:" + len);
+                os.write((byte) len >> 8);
+                os.write((byte) len);
+                try{
+                    os.write(atom);
+                }catch(IOException e){
+                    System.out.println("atom not encoded:" + e.getMessage());
+                }
+                return os;
+            }))
             .orElse( bert.float754(d -> {
                 long v = Double.doubleToRawLongBits(d);
                 os.write(70);
@@ -69,7 +85,7 @@ public class Writer {
                 try {
                     os.write(str);
                 } catch (IOException e){
-                    System.out.println("str not encoded:" + e.getMessage());                    
+                    System.out.println("str not encoded:" + e.getMessage());
                 }
                 return os;
             }))

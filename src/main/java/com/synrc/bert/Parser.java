@@ -32,6 +32,7 @@ public class Parser {
             case 97:  return bt();
             case 98:  return in();
             case 99:  return floatStr();
+            case 100: return atom();
             case 104: return tup();
             case 106: return nil();
             case 107: return str();
@@ -39,6 +40,13 @@ public class Parser {
             case 109: return bin();
             default: throw new RuntimeException("BERT?");
         }
+    }
+
+    private Atom atom(){
+        int len = buffer.getShort();
+        byte[] atom = new byte[len];
+        buffer.get(atom);
+        return new Atom(new String(atom, ISO_8859_1));
     }
 
     private In in() {
