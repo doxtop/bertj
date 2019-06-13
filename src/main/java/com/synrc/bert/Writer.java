@@ -33,16 +33,13 @@ public class Writer {
             }))
             .orElse( bert.floatStr(d -> {
                 os.write(99);
-                System.out.println("write 99 " + d);
                 final String s = String.format("%.20e", d);
-                System.out.println("str: " + s);
-                byte[] fl = s.getBytes();
+                byte[] fl = s.getBytes(ISO_8859_1);
                 ByteBuffer buf = ByteBuffer.allocate(31).order(ByteOrder.BIG_ENDIAN);
                 buf.put(fl);
-                System.out.println("Write 99 float:" + Arrays.toString(buf.array()));
                 try {
                      os.write(buf.array());
-                } catch(Exception e) {
+                } catch(IOException e) {
                      System.out.println("float is not encoded: " + e.getMessage());
                 }
                 return os;

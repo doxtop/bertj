@@ -8,7 +8,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import static com.synrc.bert.Term.*;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
-import static java.nio.charset.StandardCharsets.UTF_8;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.text.DecimalFormat;
+import java.text.ParseException;
 
 public class Parser {
     final ByteBuffer buffer;
@@ -17,13 +20,13 @@ public class Parser {
         this.buffer = ByteBuffer.wrap(bin).order(ByteOrder.BIG_ENDIAN);
     }
 
-    private Term parse() throws IOException {
+    private Term parse() throws IOException, ParseException {
         System.out.println("parse " + Arrays.toString(buffer.array()));
         if (buffer.get() != -125) throw new RuntimeException("BERT?");
         return read();
     }
 
-    private Term read() throws IOException {
+    private Term read() throws IOException, ParseException {
         switch(buffer.get()) {
             case 70:  return float754();
             case 97:  return bt();
@@ -42,14 +45,16 @@ public class Parser {
         return new In(buffer.getInt());
     }
 
-    private FloatStr floatStr() {
+    private FloatStr floatStr() throws ParseException {
         byte[] fs = new byte[31];
         buffer.get(fs);
-        String s = new String(fs);
-        
-        System.out.println("parse => " + s);
-        System.out.println("parse => " + Arrays.toString(s.getBytes(UTF_8)));
-        return new FloatStr(Double.parseDouble(s));
+        String s = new String(fs, ISO_8859_1);
+        BigDecimal bd = BigDecimal.ZERO;
+        DecimalFormat fmt = new DecimalFormat();
+        fmt.setParseBigDecimal(true);
+        bd = (BigDecimal) fmt.parse(s);
+        System.out.println("bd =>" + bd.toPlainString());
+        return new FloatStr(bd);
     }
 
     private Fload754 float754() throws IOException {
@@ -59,7 +64,7 @@ public class Parser {
         return new Bt(buffer.get());
     }
 
-    private Tuple tup() throws IOException {
+    private Tuple tup() throws IOException, ParseException {
         final int arity = buffer.get();
         List<Term> vs = List.nil();
 
@@ -70,7 +75,7 @@ public class Parser {
 
     private Array nil() { return new Array(List.nil()); }
 
-    private Array list() throws IOException {
+    private Array list() throws IOException, ParseException {
         final int length = buffer.getInt();
         List<Term> list = List.nil();
 

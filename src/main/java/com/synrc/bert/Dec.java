@@ -3,6 +3,7 @@ package com.synrc.bert;
 import fj.*;
 import fj.data.List;
 import static fj.P.p;
+import java.math.BigDecimal;
 
 public interface Dec<T> extends F<Term, Res<T>> {
     Res<T> decode(Term v);
@@ -12,7 +13,7 @@ public interface Dec<T> extends F<Term, Res<T>> {
     public static final Dec<String> stringDec = Term::str;
     public static final Dec<byte[]> binDec = Term::bin;
     public static final Dec<Double> floatDec = Term::float754;
-    public static final Dec<Double> floatSrtDec = Term::floatStr;
+    public static final Dec<BigDecimal> floatSrtDec = Term::floatStr;
     public static final Dec<Byte> byteDec = Term::bt;
     public static final Dec<Integer> intDec = Term::in;
 

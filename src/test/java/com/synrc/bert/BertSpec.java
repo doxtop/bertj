@@ -10,6 +10,7 @@ import static com.synrc.bert.Enc.*;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
+import java.math.BigDecimal;
 
 public class BertSpec {
 
@@ -26,11 +27,11 @@ public class BertSpec {
     class Roster {
         List<User> users;
         String status;
-        double pi;
+        BigDecimal pi;
         byte bi;
         int i;
 
-        Roster(List<User>users, byte[] status, double pi, byte bi, int i) {
+        Roster(List<User>users, byte[] status, BigDecimal pi, byte bi, int i) {
             this.users=users;
             this.status=new String(status, UTF_8);
             this.pi = pi;
