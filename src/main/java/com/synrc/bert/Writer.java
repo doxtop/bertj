@@ -89,7 +89,7 @@ public class Writer {
                 return os;
             }))
             .orElse( bert.float754(d -> {
-                long v = Double.doubleToRawLongBits(d);
+                long v = Double.doubleToRawLongBits(d.doubleValue());
                 os.write(70);
                 byte[] ba = new byte[] {
                     (byte) (v >> 56),

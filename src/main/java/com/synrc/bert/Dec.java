@@ -13,7 +13,7 @@ public interface Dec<T> extends F<Term, Res<T>> {
 
     public static final Dec<String> stringDec = Term::str;
     public static final Dec<byte[]> binDec = Term::bin;
-    public static final Dec<Double> floatDec = Term::float754;
+    public static final Dec<BigDecimal> floatDec = Term::float754;
     public static final Dec<BigDecimal> floatSrtDec = Term::floatStr;
     public static final Dec<Byte> byteDec = Term::bt;
     public static final Dec<Integer> intDec = Term::in;
@@ -85,6 +85,7 @@ public interface Dec<T> extends F<Term, Res<T>> {
     }
 
     public static <T,S,U,V,W,X,Y,Z> Dec<Z> tuple(ElementDec<T> t, ElementDec<S> s, ElementDec<U> u,ElementDec<V> v, ElementDec<W> w,ElementDec<X> x, ElementDec<Y> y, F7<T,S,U,V,W,X,Y,Z> f) {
+        System.out.println("tup7 dec " + y);
         return tuple(t,s,u,v,w,x,y).map(tup -> f.f(tup._1(),tup._2(),tup._3(),tup._4(), tup._5(), tup._6(), tup._7()));
     }
 

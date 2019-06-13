@@ -66,7 +66,7 @@ public class Parser {
     }
 
     private Fload754 float754() throws IOException {
-        return new Fload754(buffer.getDouble());
+        return new Fload754(BigDecimal.valueOf(buffer.getDouble()));
     }
     private Bt bt() {
         return new Bt(buffer.get());
