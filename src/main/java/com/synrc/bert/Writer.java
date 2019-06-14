@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.*;
 import java.util.Arrays;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class Writer {
     ByteArrayOutputStream os; //ByteBuffer or byte[]
@@ -15,7 +16,6 @@ public class Writer {
 
     private byte[] write_(Term bert){
         return bert.nil(() -> {
-                System.out.println("write nill");
                 os.write(106);
                 return os;
             })
@@ -49,8 +49,9 @@ public class Writer {
                 return os;
             }))
             .orElse( bert.atom(s -> {
-                System.out.println("write atom " + s);
+                //System.out.println("write atom " + s);
                 // check latin1 and 255 len
+                // force utf8 enc, write 110,115 -> 118,119
                 os.write(100);
                 byte[] atom = s.getBytes(ISO_8859_1);
                 short len = (short)s.length();
@@ -65,7 +66,7 @@ public class Writer {
                 return os;
             }))
             .orElse( bert.tupL(terms -> {
-                System.out.println("Write big tuple :" + terms);
+                //System.out.println("Write big tuple :" + terms);
                 os.write(105);
                 int len = terms.length();
                 os.write((byte)len >> 24);
@@ -78,14 +79,10 @@ public class Writer {
                 return os;
             }))
             .orElse(bert.tup(terms -> {
-                System.out.println("write small tuple " + terms);
+                //System.out.println("write small tuple " + terms);
                 os.write(104);
                 os.write((byte)terms.length());
-                terms.foreachDoEffect(t -> {
-                    System.out.println("\telement:"  + t + "of " + bert);
-                    write_(t);
-                    }
-                );
+                terms.foreachDoEffect(t -> write_(t));
                 return os;
             }))
             .orElse( bert.float754(d -> {
@@ -139,7 +136,7 @@ public class Writer {
             }))
             .orElse(bert.big(b -> {
                 // byte size 255
-                System.out.println("Write " + b + "sign:" + b.signum());
+                //System.out.println("Write " + b + "sign:" + b.signum());
                 final byte[] big = b.toByteArray();
                 
                 final int len = big.length;
@@ -164,6 +161,18 @@ public class Writer {
 
                 for(int i=len-1;i>=0;i--) os.write(big[i]);
                 
+                return os;
+            }))
+            .orElse(bert.map(m -> {
+                os.write(116);
+                int arity = m.size();
+                os.write((byte)arity >> 24);
+                os.write((byte)arity >> 16);
+                os.write((byte)arity >> 8);
+                os.write((byte)arity);
+
+                m.forEach((k,v) -> {write_(k);write_(v);});
+
                 return os;
             }))
             .map(os -> os.toByteArray())

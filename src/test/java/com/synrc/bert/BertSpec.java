@@ -33,8 +33,9 @@ public class BertSpec {
         String atom;
         List<String> tup;
         BigInteger bi;
+        List<Object> map;
 
-        Roster(List<User>users, byte[] status, BigDecimal pi, byte b, int i, String atom, List<String> tup, BigInteger bi) {
+        Roster(List<User>users, byte[] status, BigDecimal pi, byte b, int i, String atom, List<String> tup, /*BigInteger bi, */List<Object> map) {
             this.users=users;
             this.status=new String(status, UTF_8);
             this.pi = pi;
@@ -43,11 +44,12 @@ public class BertSpec {
             this.atom = atom;
             this.tup = tup;
             this.bi = bi;
+            this.map = map;
         }
 
         @Override public String toString() { return "Roaster[" + users + ", " + status + ", " + pi + 
             ", " + b + ", " + i + ", " + atom +
-            "," + tup + "," + bi +"]"; }
+            "," + tup + "," + bi + ", " + map + "]"; }
     }
 
     @Test
@@ -70,7 +72,15 @@ public class BertSpec {
             98,0,0,1,0,
             100,0,2,111,107,
             104,1,100,0,2,111,107,//105,0,0,0,1,100,0,2,111,107
-            110,8,0,(byte)255,(byte)255,(byte)255,(byte)255,(byte)255,(byte)255,(byte)255,31 //2305843009213693951
+            //110,8,0,(byte)255,(byte)255,(byte)255,(byte)255,(byte)255,(byte)255,(byte)255,31, //2305843009213693951
+            116,0,0,0,3,
+                97,1, /*->*/ 104,1,109,0,0,0,3,116,117,112,
+                100,0,2,111,107,/*->*/97,1,
+                107,0,2,104,105,/*->*/108,0,0,0,1,
+                    104,2,
+                        107,0,6,115,97,105,108,111,114,
+                        107,0,5,119,111,114,108,100,
+                    106
             };
 
         // map tuples to object with decoder combinations
@@ -85,11 +95,12 @@ public class BertSpec {
             el(5, intDec),
             el(6, atomDec),
             el(7, innerDecoder),
-            el(8, bigDec),
+            //el(8, bigDec),
+            el(8, list(objDec)),//temp list. need to define a map
              Roster::new);
 
         final Res<Term> bert = Parser.parse(in);
-        System.out.println("Parsed: " + bert.res.right().value());
+        //System.out.println("Parsed: " + bert.res.right().value());
         final Res<Roster> roster = bert.decode(rosterDecoder);
         System.out.println("Decoded: " + roster.res);
 
@@ -103,8 +114,9 @@ public class BertSpec {
             ele(5, intEnc),
             ele(6, atomEnc),
             ele(7, listEncoder),
-            ele(8, bigEnc),
-            r -> P.p(r.users, r.status.getBytes(UTF_8), r.pi, r.b, r.i, r.atom, r.tup, r.bi));
+//            ele(8, bigEnc),
+            ele(8, liste(objEnc)),
+            r -> P.p(r.users, r.status.getBytes(UTF_8), r.pi, r.b, r.i, r.atom, r.tup, r.map));
 
         //final User u = new User("synrc", "dxt");
         //final User u1 = new User("synrc", "5HT");

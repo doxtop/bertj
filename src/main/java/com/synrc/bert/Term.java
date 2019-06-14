@@ -5,9 +5,11 @@ import fj.data.*;
 import static fj.data.Option.none;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 
-abstract class Term {
-    private Term() {}
+public class Term<T> {
+    final T v;
+    Term(T v) { this.v = v; }
 
     public Res<String>  str() { return str(Res::ok).orSome(Res.fail(this + " is not a string"));}
     public Res<byte[]>  bin() { return bin(Res::ok).orSome(Res.fail(this + " is not a binary"));}
@@ -17,6 +19,7 @@ abstract class Term {
     public Res<Integer> in()  { return in(Res::ok).orSome(Res.fail(this + " is not a integer"));}
     public Res<String> atom()  { return atom(Res::ok).orSome(Res.fail(this + " is not an atom"));}
     public Res<BigInteger> big()  { return big(Res::ok).orSome(Res.fail(this + " is not an big"));}
+    public Res<Object> obj() {return obj(Res::ok).orSome(Res.fail(this + " is not an object."));}
 
     public static Term str(String str) { return new Str(str); }
     public static Term bin(byte[] bin) { return new Bin(bin); }
@@ -27,6 +30,7 @@ abstract class Term {
     public static Term in(Integer v) { return new In(v.intValue());}
     public static Term atom(String v) { return new Atom(v); }
     public static Term big(BigInteger v){ return new Big(v);}
+    public static Term obj(Object v) { return new Term<Object>(v); }
 
     public <T> Option<T> str(F<String, T> f) { return none(); }
     public <T> Option<T> bin(F<byte[], T> f) { return none(); }
@@ -40,61 +44,58 @@ abstract class Term {
     public <T> Option<T> in(F<Integer,T> f) { return none(); }
     public <T> Option<T> atom(F<String,T> f) {return none();}
     public <T> Option<T> big(F<BigInteger,T> f) { return none(); }
+    public <T> Option<T> map(F<java.util.Map<Term,Term>,T> f) { return none(); }
+    public <T> Option<T> obj(F<Object,T> f) { return none(); }
 
-    public static class Big extends Term {
-        final BigInteger v;
-        public Big(BigInteger v) {this.v = v;}
+    public static final class Map extends Term<java.util.Map<Term,Term>> {
+        public Map(java.util.Map<Term,Term> v) { super(v); }
+        public <T> Option<T> map(F<java.util.Map<Term,Term>,T> f) { return Option.some(f.f(v)); }
+    }
+
+    public static final class Big extends Term<BigInteger> {
+        public Big(BigInteger v) {super(v);}
         public <T> Option<T> big(F<BigInteger,T> f) { return Option.some(f.f(v)); }
     }
 
-    public static final class Atom extends Term {
-        // latin1 - in minor_version 0,1. 2 in utf8
-        final String v;
-        public Atom(String v){ this.v=v;}
+    public static final class Atom extends Term<String> {
+        private Charset charset;// latin1 - in minor_version 0,1. 2 in utf8
+        public Atom(String v){ super(v);}
         public <T> Option<T> atom(F<String,T> f) {return Option.some(f.f(v));}
     }
 
-    public static final class In extends Term {
-        final int v;
-        public In(int v){this.v = v;}
+    public static final class In extends Term<Integer> {
+        public In(int v){super(v);}
         public <T> Option<T> in(F<Integer,T> f) { return Option.some(f.f(v)); }
     }
 
-    public static final class Bt extends Term {
-        final byte v;
-        public Bt(byte v) {  this.v = v; }
+    public static final class Bt extends Term<Byte> {
+        public Bt(byte v) { super(v); }
         public <T> Option<T> bt(F<Byte,T> f) { return Option.some(f.f(v)); }
     }
 
-    public static final class Fload754 extends Term {
-        final BigDecimal v;
-        public Fload754(BigDecimal v) {  this.v = v; }
+    public static final class Fload754 extends Term<BigDecimal> {
+        public Fload754(BigDecimal v) { super(v); }
         public <T> Option<T> float754(F<BigDecimal,T> f) { return Option.some(f.f(v)); }
     }
 
-    public static final class FloatStr extends Term {
-        final BigDecimal v;
-        public FloatStr(BigDecimal v) { this.v = v; }
+    public static final class FloatStr extends Term<BigDecimal> {
+        public FloatStr(BigDecimal v) { super(v); }
         public <T> Option<T> floatStr(F<BigDecimal,T> f) { return Option.some(f.f(v)); }
     }
 
-    public static final class Bin extends Term {
-        final byte[] v;
-        public Bin(byte[] v) { this.v = v; }
+    public static final class Bin extends Term<byte[]> {
+        public Bin(byte[] v) { super(v); }
 
         public <T> Option<T> bin(F<byte[], T> f) { return Option.some(f.f(v)); }
     }
 
-    public static final class Str extends Term {
-        final String v;
-        public Str(String v){ this.v = v; }
-
+    public static final class Str extends Term<String> {
+        public Str(String v){ super(v); }
         public <T> Option<T> str(F<String, T> f) { return Option.some(f.f(v)); }
     }
 
-    public static class Tuple extends Term {
-        final List<Term> v;
-        public Tuple(List<Term> v) { this.v = v; }
+    public static class Tuple extends Term<List<Term>> {
+        public Tuple(List<Term> v) { super(v); }
 
         public <T> Option<T> tup(F<List<Term>, T> f) { return Option.some(f.f(v)); }
         public <T> Option<T> tupL(F<List<Term>, T> f) { return none(); }
@@ -111,15 +112,14 @@ abstract class Term {
         @Override public String toString() { return "L->" + v.toString();}
     }
 
-    public static final class Array extends Term {
-        public final List<Term> xs;
+    public static final class Array extends Term<List<Term>> {
+        public Array(List<Term> v) { super(v); }
 
-        public Array(List<Term> xs) { this.xs = xs; }
-
-        public <T> Option<T> list(F<List<Term>, T> f) { return Option.some(f.f(xs)); }
+        public <T> Option<T> list(F<List<Term>, T> f) { return Option.some(f.f(v)); }
     }
 
-    public static final class Nil extends Term {
+    public static final class Nil extends Term<List<Term>> {
+        public Nil() { super(List.nil());} 
         public <T> Option<T> nil(F0<T> f) { return Option.some(f.f()); }
     }
 

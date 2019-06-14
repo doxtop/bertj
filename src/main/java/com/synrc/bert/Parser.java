@@ -6,8 +6,10 @@ import fj.data.Either;
 import java.nio.*;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import static com.synrc.bert.Term.*;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.BigInteger;
@@ -33,7 +35,7 @@ public class Parser {
             case 97:  return bt();
             case 98:  return in();
             case 99:  return floatStr();
-            case 100: return atom();
+            case 100: return atom(false);
             case 104: return tup();
             case 105: return tupL();
             case 106: return nil();
@@ -42,12 +44,21 @@ public class Parser {
             case 109: return bin();
             case 110: return big(true);
             case 111: return big(false);
-            //case 115: return smallAtom();
-            //case 116: return map();
-            //case 118: return utf8Atom();
-            //case 119: return uft8SmallAtom();
+            case 115: return atom(true); 
+            case 116: return map();
+            case 118: return utf8Atom(false);
+            case 119: return utf8Atom(true);
             default: throw new RuntimeException("BERT?");
         }
+    }
+
+    public Map map() throws IOException, ParseException {
+        int arity = buffer.getInt();
+        java.util.Map<Term,Term> map = new HashMap<>();
+
+        for(int i=0;i<arity;i++) map.put(read(),read());
+
+        return new Map(map);
     }
 
     private Big big(boolean small) {
@@ -65,11 +76,18 @@ public class Parser {
         return new Big(bi);
     }
 
-    private Atom atom(){
-        int len = buffer.getShort();
+    private Atom atom(boolean small) {// deprecated
+        int len = small ? buffer.get() : buffer.getShort(); // 255 for 100, 65536 for 115
         byte[] atom = new byte[len];
         buffer.get(atom);
         return new Atom(new String(atom, ISO_8859_1));
+    }
+
+    private Atom utf8Atom(boolean small) {
+        int len = small ? buffer.get() : buffer.getShort();
+        byte[] atom = new byte[len];
+        buffer.get(atom);
+        return new Atom(new String(atom, UTF_8));
     }
 
     private In in() {

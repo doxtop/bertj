@@ -20,6 +20,7 @@ public interface Dec<T> extends F<Term, Res<T>> {
     public static final Dec<Integer> intDec = Term::in;
     public static final Dec<String> atomDec = Term::atom;
     public static final Dec<BigInteger> bigDec = Term::big;
+    public static final Dec<Object> objDec = Term::obj;
 
     public static interface ElementDec<A> {
         Res<A> apply(List<Term> elements);

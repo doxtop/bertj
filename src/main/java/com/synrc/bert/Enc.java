@@ -23,6 +23,7 @@ public interface Enc<T> extends F<T, Term> {
     public static Enc<Integer>  intEnc = Term::in;
     public static Enc<String>   atomEnc = Term::atom;
     public static Enc<BigInteger> bigEnc = Term::big;
+    public static Enc<Object> objEnc = Term::obj;
 
     public static <T> Enc<List<T>> liste(Enc<T> enc) {
         return list -> Term.list(list.map(enc::encode));
