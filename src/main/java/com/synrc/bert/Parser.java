@@ -10,6 +10,7 @@ import static com.synrc.bert.Term.*;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 
@@ -39,8 +40,29 @@ public class Parser {
             case 107: return str();
             case 108: return list();
             case 109: return bin();
+            case 110: return big(true);
+            case 111: return big(false);
+            //case 115: return smallAtom();
+            //case 116: return map();
+            //case 118: return utf8Atom();
+            //case 119: return uft8SmallAtom();
             default: throw new RuntimeException("BERT?");
         }
+    }
+
+    private Big big(boolean small) {
+        int len = small ? buffer.get() : buffer.getInt();
+        byte sign = buffer.get();
+        int signum = 0;
+        if (sign==0) signum = 1;
+        if (sign==1) signum = -1;
+        byte[] mag = new byte[len];
+        byte[] lmag = new byte[len];
+        buffer.get(mag);// least significant first 
+        for(int i=len-1;i>=0;i--) lmag[len-i-1]=mag[i];        
+        // probably something custom to store, but slow and big integer for now
+        BigInteger bi = new BigInteger(signum,lmag);// most significant first
+        return new Big(bi);
     }
 
     private Atom atom(){

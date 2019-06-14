@@ -5,6 +5,7 @@ import fj.data.List;
 import fj.data.Option;
 import static fj.P.p;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 public interface Dec<T> extends F<Term, Res<T>> {
     Res<T> decode(Term v);
@@ -13,11 +14,12 @@ public interface Dec<T> extends F<Term, Res<T>> {
 
     public static final Dec<String> stringDec = Term::str;
     public static final Dec<byte[]> binDec = Term::bin;
-    public static final Dec<BigDecimal> floatDec = Term::float754;
-    public static final Dec<BigDecimal> floatSrtDec = Term::floatStr;
+    public static final Dec<BigDecimal> floatDec = Term::float754;   // double easy
+    public static final Dec<BigDecimal> floatSrtDec = Term::floatStr;// deprecate
     public static final Dec<Byte> byteDec = Term::bt;
     public static final Dec<Integer> intDec = Term::in;
     public static final Dec<String> atomDec = Term::atom;
+    public static final Dec<BigInteger> bigDec = Term::big;
 
     public static interface ElementDec<A> {
         Res<A> apply(List<Term> elements);
@@ -85,8 +87,16 @@ public interface Dec<T> extends F<Term, Res<T>> {
     }
 
     public static <T,S,U,V,W,X,Y,Z> Dec<Z> tuple(ElementDec<T> t, ElementDec<S> s, ElementDec<U> u,ElementDec<V> v, ElementDec<W> w,ElementDec<X> x, ElementDec<Y> y, F7<T,S,U,V,W,X,Y,Z> f) {
-        System.out.println("tup7 dec " + y);
         return tuple(t,s,u,v,w,x,y).map(tup -> f.f(tup._1(),tup._2(),tup._3(),tup._4(), tup._5(), tup._6(), tup._7()));
+    }
+
+    public static <T,S,U,V,W,X,Y,Z> Dec<P8<T,S,U,V,W,X,Y,Z>> tuple(ElementDec<T> t, ElementDec<S> s, ElementDec<U> u,ElementDec<V> v, ElementDec<W> w,ElementDec<X> x,ElementDec<Y> y,ElementDec<Z> z) {
+        return o -> o.tup(tup -> pair(t, pair(s, pair(u, pair(v, pair(w, pair(x, pair(y,z))))))).apply(tup).map(Dec::flat8))
+            .orSome(Res.fail("Tuple expected " + o));
+    }
+
+    public static <T,S,U,V,W,X,Y,Z,R> Dec<R> tuple(ElementDec<T> t, ElementDec<S> s, ElementDec<U> u,ElementDec<V> v, ElementDec<W> w,ElementDec<X> x, ElementDec<Y> y,ElementDec<Z> z, F8<T,S,U,V,W,X,Y,Z,R> f) {
+        return tuple(t,s,u,v,w,x,y,z).map(tup -> f.f(tup._1(),tup._2(),tup._3(),tup._4(), tup._5(), tup._6(), tup._7(),tup._8()));
     }
 
     public static <T, S> ElementDec<P2<T, S>> pair(ElementDec<T> td, ElementDec<S> sd) {
@@ -123,6 +133,11 @@ public interface Dec<T> extends F<Term, Res<T>> {
     public static <T,S,U,V,W,X,Y> P7<T,S,U,V,W,X,Y> flat7(P2<T,P2<S,P2<U,P2<V,P2<W,P2<X,Y>>>>>> n) {
         P6<S,U,V,W,X,Y> p6 = flat6(n._2());
         return p(n._1(), p6._1(), p6._2(), p6._3(), p6._4(), p6._5(),p6._6());
+    }
+
+    public static <T,S,U,V,W,X,Y,Z> P8<T,S,U,V,W,X,Y,Z> flat8(P2<T,P2<S,P2<U,P2<V,P2<W,P2<X,P2<Y,Z>>>>>>> n) {
+        P7<S,U,V,W,X,Y,Z> p = flat7(n._2());
+        return p(n._1(), p._1(), p._2(), p._3(), p._4(), p._5(),p._6(), p._7());
     }
 
 }

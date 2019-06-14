@@ -4,6 +4,7 @@ import fj.*;
 import fj.data.*;
 import static fj.data.Option.none;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 abstract class Term {
     private Term() {}
@@ -15,6 +16,7 @@ abstract class Term {
     public Res<Byte>    bt()  { return bt(Res::ok).orSome(Res.fail(this + " is not a byte"));}
     public Res<Integer> in()  { return in(Res::ok).orSome(Res.fail(this + " is not a integer"));}
     public Res<String> atom()  { return atom(Res::ok).orSome(Res.fail(this + " is not an atom"));}
+    public Res<BigInteger> big()  { return big(Res::ok).orSome(Res.fail(this + " is not an big"));}
 
     public static Term str(String str) { return new Str(str); }
     public static Term bin(byte[] bin) { return new Bin(bin); }
@@ -24,6 +26,7 @@ abstract class Term {
     public static Term bt(Byte v) { return new Bt(v.byteValue());}
     public static Term in(Integer v) { return new In(v.intValue());}
     public static Term atom(String v) { return new Atom(v); }
+    public static Term big(BigInteger v){ return new Big(v);}
 
     public <T> Option<T> str(F<String, T> f) { return none(); }
     public <T> Option<T> bin(F<byte[], T> f) { return none(); }
@@ -36,6 +39,13 @@ abstract class Term {
     public <T> Option<T> bt(F<Byte,T> f) { return none(); }
     public <T> Option<T> in(F<Integer,T> f) { return none(); }
     public <T> Option<T> atom(F<String,T> f) {return none();}
+    public <T> Option<T> big(F<BigInteger,T> f) { return none(); }
+
+    public static class Big extends Term {
+        final BigInteger v;
+        public Big(BigInteger v) {this.v = v;}
+        public <T> Option<T> big(F<BigInteger,T> f) { return Option.some(f.f(v)); }
+    }
 
     public static final class Atom extends Term {
         // latin1 - in minor_version 0,1. 2 in utf8

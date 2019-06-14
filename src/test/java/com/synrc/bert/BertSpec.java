@@ -4,13 +4,13 @@ import org.junit.*;
 import fj.*;
 import fj.data.List;
 import java.util.Arrays;
+import java.math.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static com.synrc.bert.Dec.*;
 import static com.synrc.bert.Enc.*;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
-import java.math.BigDecimal;
 
 public class BertSpec {
 
@@ -28,24 +28,26 @@ public class BertSpec {
         List<User> users;
         String status;
         BigDecimal pi;
-        byte bi;
+        byte b;
         int i;
         String atom;
         List<String> tup;
+        BigInteger bi;
 
-        Roster(List<User>users, byte[] status, BigDecimal pi, byte bi, int i, String atom, List<String> tup) {
+        Roster(List<User>users, byte[] status, BigDecimal pi, byte b, int i, String atom, List<String> tup, BigInteger bi) {
             this.users=users;
             this.status=new String(status, UTF_8);
             this.pi = pi;
-            this.bi = bi;
+            this.b = b;
             this.i = i;
             this.atom = atom;
             this.tup = tup;
+            this.bi = bi;
         }
 
         @Override public String toString() { return "Roaster[" + users + ", " + status + ", " + pi + 
-            ", " + bi + ", " + i + ", " + atom +
-            "," + tup + "]"; }
+            ", " + b + ", " + i + ", " + atom +
+            "," + tup + "," + bi +"]"; }
     }
 
     @Test
@@ -53,7 +55,7 @@ public class BertSpec {
         System.out.println("decode {[{\"synrc\",\"dxt\"}, {\"synrc\",\"5HT\"}],<<\"active\">>,3.14,128,256,ok, {ok}} =>");
 
         final byte[] in = {//{minor_version, 2}
-            (byte)131,104,7,
+            (byte)131,104,8,
             108,0,0,0,2,
                 104,2,
                     107,0,5,115,121,110,114,99,
@@ -67,7 +69,9 @@ public class BertSpec {
             97,(byte)128,
             98,0,0,1,0,
             100,0,2,111,107,
-            104,1,100,0,2,111,107};//105,0,0,0,1,100,0,2,111,107
+            104,1,100,0,2,111,107,//105,0,0,0,1,100,0,2,111,107
+            110,8,0,(byte)255,(byte)255,(byte)255,(byte)255,(byte)255,(byte)255,(byte)255,31 //2305843009213693951
+            };
 
         // map tuples to object with decoder combinations
         final F<String, List<String>> f = a -> List.<String>nil().cons(a);
@@ -80,7 +84,9 @@ public class BertSpec {
             el(4, byteDec),
             el(5, intDec),
             el(6, atomDec),
-            el(7, innerDecoder), Roster::new);
+            el(7, innerDecoder),
+            el(8, bigDec),
+             Roster::new);
 
         final Res<Term> bert = Parser.parse(in);
         System.out.println("Parsed: " + bert.res.right().value());
@@ -97,7 +103,8 @@ public class BertSpec {
             ele(5, intEnc),
             ele(6, atomEnc),
             ele(7, listEncoder),
-            r -> P.p(r.users, r.status.getBytes(UTF_8), r.pi, r.bi, r.i, r.atom, r.tup));
+            ele(8, bigEnc),
+            r -> P.p(r.users, r.status.getBytes(UTF_8), r.pi, r.b, r.i, r.atom, r.tup, r.bi));
 
         //final User u = new User("synrc", "dxt");
         //final User u1 = new User("synrc", "5HT");

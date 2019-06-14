@@ -137,6 +137,35 @@ public class Writer {
                 list.foreachDoEffect(t -> write_(t));
                 return os;
             }))
+            .orElse(bert.big(b -> {
+                // byte size 255
+                System.out.println("Write " + b + "sign:" + b.signum());
+                final byte[] big = b.toByteArray();
+                
+                final int len = big.length;
+                
+                if(len - 1 <= 255) {
+                    os.write(110);
+                    os.write((byte)len);
+                } else {
+                    // not tested yet
+                    System.out.println("Write 111 " + len);
+                    os.write(111);
+                    os.write((byte)len >> 24);
+                    os.write((byte)len >> 16);
+                    os.write((byte)len >> 8);
+                    os.write((byte)len);
+                }
+                int signum = b.signum();
+                byte sign = 0;
+                if(signum == 1) sign = 0;
+                if(signum ==-1) sign = 1;
+                os.write(sign);
+
+                for(int i=len-1;i>=0;i--) os.write(big[i]);
+                
+                return os;
+            }))
             .map(os -> os.toByteArray())
             .orSome(() -> os.toByteArray());
     }

@@ -4,6 +4,7 @@ import fj.*;
 import static fj.P.p;
 import fj.data.List;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 public interface Enc<T> extends F<T, Term> {
     Term encode(T v);
@@ -21,6 +22,7 @@ public interface Enc<T> extends F<T, Term> {
     public static Enc<Byte>     byteEnc = Term::bt;
     public static Enc<Integer>  intEnc = Term::in;
     public static Enc<String>   atomEnc = Term::atom;
+    public static Enc<BigInteger> bigEnc = Term::big;
 
     public static <T> Enc<List<T>> liste(Enc<T> enc) {
         return list -> Term.list(list.map(enc::encode));
@@ -96,8 +98,16 @@ public interface Enc<T> extends F<T, Term> {
         return o -> and(t, and(s, and(u, and(v, and(w, and(x, y)))))).apply(new Term.Tuple(List.nil()), Enc.ext(o));
     }
 
-    public static <T,S,U,V,W,X,Y,Z> Enc<Z> tuplee(ElementEnc<T> t, ElementEnc<S> s, ElementEnc<U> u, ElementEnc<V> v, ElementEnc<W> w, ElementEnc<X> x,ElementEnc<Y> y, F<Z,P7<T,S,U,V,W,X,Y>> f){
+    public static <T,S,U,V,W,X,Y,Z> Enc<Z> tuplee(ElementEnc<T> t, ElementEnc<S> s, ElementEnc<U> u, ElementEnc<V> v, ElementEnc<W> w, ElementEnc<X> x,ElementEnc<Y> y, F<Z,P7<T,S,U,V,W,X,Y>> f) {
         return tuplee(t,s,u,v,w,x,y).contramap(f);        
+    }
+
+    public static <T,S,U,V,W,X,Y,Z> Enc<P8<T,S,U,V,W,X,Y,Z>> tuplee(ElementEnc<T> t, ElementEnc<S> s, ElementEnc<U> u, ElementEnc<V> v, ElementEnc<W> w, ElementEnc<X> x,ElementEnc<Y> y,ElementEnc<Z> z) {
+        return o -> and(t, and(s, and(u, and(v, and(w, and(x, and(y,z))))))).apply(new Term.Tuple(List.nil()), Enc.ext(o));
+    }
+
+    public static <T,S,U,V,W,X,Y,Z,R> Enc<R> tuplee(ElementEnc<T> t, ElementEnc<S> s, ElementEnc<U> u, ElementEnc<V> v, ElementEnc<W> w, ElementEnc<X> x,ElementEnc<Y> y,ElementEnc<Z> z, F<R,P8<T,S,U,V,W,X,Y,Z>> f) {
+        return tuplee(t,s,u,v,w,x,y,z).contramap(f);        
     }
 
     public static <T> ElementEnc<T> ele(int index, Enc<T> enc) {
@@ -126,6 +136,10 @@ public interface Enc<T> extends F<T, Term> {
 
     public static <T,S,U,V,W,X,Y> P2<T,P2<S,P2<U,P2<V,P2<W,P2<X,Y>>>>>> ext(P7<T,S,U,V,W,X,Y> p) {
         return P.p(p._1(), ext(p(p._2(),p._3(),p._4(),p._5(), p._6(), p._7())));
+    }
+
+    public static <T,S,U,V,W,X,Y,Z> P2<T,P2<S,P2<U,P2<V,P2<W,P2<X,P2<Y,Z>>>>>>> ext(P8<T,S,U,V,W,X,Y,Z> p) {
+        return P.p(p._1(), ext(p(p._2(),p._3(),p._4(),p._5(), p._6(), p._7(), p._8())));
     }
 
 }
