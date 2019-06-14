@@ -141,7 +141,7 @@ public class Parser {
         }
 
         final Array tail = (Array) read();
-        if (!tail.xs.isEmpty()) {
+        if (!tail.v.isEmpty()) {
             //list = list.cons(new Nil());
             list = list.cons(tail); // Nil
         }

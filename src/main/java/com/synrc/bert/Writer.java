@@ -3,6 +3,7 @@ package com.synrc.bert;
 import java.io.*;
 import java.nio.*;
 import java.util.Arrays;
+import java.util.Map;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -66,7 +67,6 @@ public class Writer {
                 return os;
             }))
             .orElse( bert.tupL(terms -> {
-                //System.out.println("Write big tuple :" + terms);
                 os.write(105);
                 int len = terms.length();
                 os.write((byte)len >> 24);
@@ -79,7 +79,6 @@ public class Writer {
                 return os;
             }))
             .orElse(bert.tup(terms -> {
-                //System.out.println("write small tuple " + terms);
                 os.write(104);
                 os.write((byte)terms.length());
                 terms.foreachDoEffect(t -> write_(t));
@@ -125,6 +124,7 @@ public class Writer {
                 return os;
             })) 
             .orElse(bert.list(list -> {
+                System.out.println("write list 108" + list);
                 os.write(108);
                 int len = list.length()-1;
                 os.write((byte)len >> 24);
@@ -163,7 +163,8 @@ public class Writer {
                 
                 return os;
             }))
-            .orElse(bert.map(m -> {
+            .orElse(bert.mp(list -> {
+                Map<Term,Term> m = ((Term.Map)bert.mp(list)).v;
                 os.write(116);
                 int arity = m.size();
                 os.write((byte)arity >> 24);
@@ -171,7 +172,7 @@ public class Writer {
                 os.write((byte)arity >> 8);
                 os.write((byte)arity);
 
-                m.forEach((k,v) -> {write_(k);write_(v);});
+                m.entrySet().forEach(e -> {write_(e.getKey());write_(e.getValue());});
 
                 return os;
             }))

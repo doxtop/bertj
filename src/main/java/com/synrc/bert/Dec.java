@@ -20,7 +20,6 @@ public interface Dec<T> extends F<Term, Res<T>> {
     public static final Dec<Integer> intDec = Term::in;
     public static final Dec<String> atomDec = Term::atom;
     public static final Dec<BigInteger> bigDec = Term::big;
-    public static final Dec<Object> objDec = Term::obj;
 
     public static interface ElementDec<A> {
         Res<A> apply(List<Term> elements);
@@ -28,6 +27,10 @@ public interface Dec<T> extends F<Term, Res<T>> {
 
     public static <S> Dec<List<S>> list(Dec<S> ds) {
         return term -> term.list(list -> Res.seq(list.map(ds))).orSome(Res.fail(term + " isn't a list"));
+    }
+
+    public static <S> Dec<List<S>> mapa(Dec<S> ds) {
+        return term -> term.mp(list -> Res.seq(list.map(ds))).orSome(Res.fail(term + " isn't a map."));
     }
 
     public static <T> Dec<P1<T>> tuple(ElementDec<T> td) {

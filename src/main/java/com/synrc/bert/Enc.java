@@ -23,10 +23,13 @@ public interface Enc<T> extends F<T, Term> {
     public static Enc<Integer>  intEnc = Term::in;
     public static Enc<String>   atomEnc = Term::atom;
     public static Enc<BigInteger> bigEnc = Term::big;
-    public static Enc<Object> objEnc = Term::obj;
 
     public static <T> Enc<List<T>> liste(Enc<T> enc) {
         return list -> Term.list(list.map(enc::encode));
+    }
+
+    public static <T> Enc<List<T>> mape(Enc<T> enc) {
+        return list -> Term.mp(list.map(enc::encode));
     }
 
     public interface ElementEnc<T> {
@@ -35,16 +38,6 @@ public interface Enc<T> extends F<T, Term> {
 
     static <T, S> ElementEnc<P2<T, S>> and(ElementEnc<T> ft, ElementEnc<S> fs) {
         return (tuple, t) -> fs.apply(ft.apply(tuple, t._1()), t._2());
-    }
-
-    // term_to_binary will not produce large tuple for small one, quick shit here
-    public static <T> Enc<T> tupleel(ElementEnc<T> e) {
-        System.out.println("encode tuple l");
-        return x -> e.apply(new Term.TupleL(List.nil()), x);
-    }
-    public static <T,S> Enc<S> tupleel(ElementEnc<T> e, F<S,T> f){
-        System.out.println("map f on tuple l");
-        return tupleel(e).contramap(f);
     }
 
     public static <T> Enc<T> tuplee(ElementEnc<T> e){

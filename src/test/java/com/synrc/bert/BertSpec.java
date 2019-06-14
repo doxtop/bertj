@@ -3,6 +3,7 @@ package com.synrc.bert;
 import org.junit.*;
 import fj.*;
 import fj.data.List;
+import fj.data.hlist.HList;
 import java.util.Arrays;
 import java.math.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -33,9 +34,10 @@ public class BertSpec {
         String atom;
         List<String> tup;
         BigInteger bi;
-        List<Object> map;
-
-        Roster(List<User>users, byte[] status, BigDecimal pi, byte b, int i, String atom, List<String> tup, /*BigInteger bi, */List<Object> map) {
+        List<String> map;
+        
+        Roster(List<User>users, byte[] status, BigDecimal pi, byte b, int i, String atom, List<String> tup, /*BigInteger bi, */
+            List<String> map) {
             this.users=users;
             this.status=new String(status, UTF_8);
             this.pi = pi;
@@ -50,6 +52,10 @@ public class BertSpec {
         @Override public String toString() { return "Roaster[" + users + ", " + status + ", " + pi + 
             ", " + b + ", " + i + ", " + atom +
             "," + tup + "," + bi + ", " + map + "]"; }
+    }
+
+    class Mp {
+
     }
 
     @Test
@@ -73,19 +79,22 @@ public class BertSpec {
             100,0,2,111,107,
             104,1,100,0,2,111,107,//105,0,0,0,1,100,0,2,111,107
             //110,8,0,(byte)255,(byte)255,(byte)255,(byte)255,(byte)255,(byte)255,(byte)255,31, //2305843009213693951
-            116,0,0,0,3,
-                97,1, /*->*/ 104,1,109,0,0,0,3,116,117,112,
-                100,0,2,111,107,/*->*/97,1,
-                107,0,2,104,105,/*->*/108,0,0,0,1,
-                    104,2,
-                        107,0,6,115,97,105,108,111,114,
-                        107,0,5,119,111,114,108,100,
-                    106
+            116,0,0,0,1,
+                107,0,2,115,49,/*->*/107,0,2,115,50
+            // 116,0,0,0,3,
+            //     97,1, /*->*/ 104,1,109,0,0,0,3,116,117,112,
+            //     100,0,2,111,107,/*->*/97,1,
+            //     107,0,2,104,105,/*->*/108,0,0,0,1,
+            //         104,2,
+            //             107,0,6,115,97,105,108,111,114,
+            //             107,0,5,119,111,114,108,100,
+            //         106
             };
 
         // map tuples to object with decoder combinations
         final F<String, List<String>> f = a -> List.<String>nil().cons(a);
-        final Dec<List<String>>  innerDecoder = tuple(el(1,atomDec), f);
+        final Dec<List<String>> innerDecoder = tuple(el(1,atomDec), f);
+        final Dec<List<String>> mapDecoder = mapa(stringDec);
         final Dec<User> userDecoder     = tuple(el(1, stringDec), el(2, stringDec), User::new);
         final Dec<Roster> rosterDecoder = tuple(
             el(1, list(userDecoder)), 
@@ -96,16 +105,20 @@ public class BertSpec {
             el(6, atomDec),
             el(7, innerDecoder),
             //el(8, bigDec),
-            el(8, list(objDec)),//temp list. need to define a map
+            el(8, mapDecoder),
              Roster::new);
 
         final Res<Term> bert = Parser.parse(in);
-        //System.out.println("Parsed: " + bert.res.right().value());
+        System.out.println("Parsed: " + bert.res.right().value());
         final Res<Roster> roster = bert.decode(rosterDecoder);
         System.out.println("Decoded: " + roster.res);
 
         final Enc<List<String>> listEncoder = tuplee(ele(1, atomEnc), l -> l.head());
         final Enc<User> userEncoder = tuplee(ele(1, stringEnc), ele(2, stringEnc), user -> P.p(user.org, user.name));
+        // from list to p2
+        final Enc<List<String>> mapEncoder = mape(stringEnc);
+
+        final Enc<List<byte[]>> binEncoder = tuplee(ele(1, binEnc), l -> l.head());
         final Enc<Roster> rosterEncoder = tuplee(
             ele(1, liste(userEncoder)), 
             ele(2, binEnc),
@@ -115,7 +128,7 @@ public class BertSpec {
             ele(6, atomEnc),
             ele(7, listEncoder),
 //            ele(8, bigEnc),
-            ele(8, liste(objEnc)),
+            ele(8, mapEncoder),
             r -> P.p(r.users, r.status.getBytes(UTF_8), r.pi, r.b, r.i, r.atom, r.tup, r.map));
 
         //final User u = new User("synrc", "dxt");
