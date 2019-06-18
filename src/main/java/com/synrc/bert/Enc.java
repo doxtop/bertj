@@ -19,9 +19,8 @@ public interface Enc<T> extends F<T, Term> {
 
     public static Enc<String>   stringEnc = Term::str;
     public static Enc<byte[]>   binEnc  = Term::bin;
-    public static Enc<BigDecimal>   floatEnc = Term::float754;
+    public static Enc<Double>   floatEnc = Term::float754;
     public static Enc<BigDecimal>   floatStrEnc = Term::floatStr;
-    public static Enc<Byte>     byteEnc = Term::bt;
     public static Enc<Integer>  intEnc = Term::in;
     public static Enc<String>   atomEnc = v -> Term.atom(v, ISO_8859_1);
     public static Enc<String>   atomUtf8Enc = v-> Term.atom(v, UTF_8);

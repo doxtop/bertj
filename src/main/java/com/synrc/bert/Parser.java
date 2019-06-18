@@ -25,26 +25,25 @@ public class Parser {
     }
 
     private Term parse() throws IOException, ParseException {
-        System.out.println("parse " + Arrays.toString(buffer.array()));
-        if (buffer.get() != -125) throw new RuntimeException("BERT?");
+        if ((buffer.get()& 0xff) != 131) throw new RuntimeException("BERT?");
         return read();
     }
 
     private Term read() throws IOException, ParseException {
-        switch(buffer.get()) {
-            case 70:  return float754();
-            case 97:  return bt();
-            case 98:  return in();
+        switch(buffer.get() & 0xff) {
+            case 70:  return new Fload754(buffer.getDouble());
+            case 97:  return new Int(buffer.get() & 0xff);
+            case 98:  return new Int(buffer.getInt());
             case 99:  return floatStr();
             case 100: return atom(buffer.getShort(), ISO_8859_1);
-            case 104: return tup();
-            case 105: return tupL();
-            case 106: return nil();
-            case 107: return str();
+            case 104: return tup(buffer.get() & 0xff);
+            case 105: return tup(buffer.getInt());
+            case 106: return new Nil();
+            case 107: byte[] s = new byte[buffer.getShort()];buffer.get(s); return new Str(new String(s, ISO_8859_1));
             case 108: return list();
-            case 109: return bin();
-            case 110: return big(true);
-            case 111: return big(false);
+            case 109: byte[] bi = new byte[buffer.getInt()];buffer.get(bi); return new Bin(bi);
+            case 110: return big(buffer.get()& 0xff);
+            case 111: return big(buffer.getInt());
             case 115: return atom(buffer.get()& 0xff, ISO_8859_1); 
             case 116: return map();
             case 118: return atom(buffer.getShort(), UTF_8);
@@ -68,29 +67,23 @@ public class Parser {
         return new Map(map);
     }
 
-    private Big big(boolean small) {
-        int len = small ? buffer.get() : buffer.getInt();
+    private Big big(int len) {
         byte sign = buffer.get();
         int signum = 0;
         if (sign==0) signum = 1;
         if (sign==1) signum = -1;
         byte[] mag = new byte[len];
         byte[] lmag = new byte[len];
-        buffer.get(mag);// least significant first 
-        for(int i=len-1;i>=0;i--) lmag[len-i-1]=mag[i];        
-        // probably something custom to store, but slow and big integer for now
-        BigInteger bi = new BigInteger(signum,lmag);// most significant first
+        buffer.get(mag);
+        for(int i=len-1;i>=0;i--) lmag[len-i-1]=mag[i];
+        BigInteger bi = new BigInteger(signum,lmag);
         return new Big(bi);
-    }
-
-    private In in() {
-        return new In(buffer.getInt());
     }
 
     private FloatStr floatStr() throws ParseException {
         byte[] fs = new byte[31];
         buffer.get(fs);
-        String s = new String(fs, ISO_8859_1);
+        final String s = new String(fs, ISO_8859_1);
         BigDecimal bd = BigDecimal.ZERO;
         DecimalFormat fmt = new DecimalFormat();
         fmt.setParseBigDecimal(true);
@@ -98,59 +91,25 @@ public class Parser {
         return new FloatStr(bd);
     }
 
-    private Fload754 float754() throws IOException {
-        return new Fload754(BigDecimal.valueOf(buffer.getDouble()));
-    }
-    private Bt bt() {
-        return new Bt(buffer.get());
-    }
-
-    private Tuple tup() throws IOException, ParseException {
-        final int arity = buffer.get();
+    private Tuple tup(int arity) throws IOException, ParseException {
         List<Term> vs = List.nil();
 
         for (int i=0;i<arity;i++) vs = vs.cons(read());
 
         return new Tuple(vs.reverse());
     }
-
-    private Tuple tupL() throws IOException, ParseException {
-        final int arity = buffer.getInt();
-        List<Term> vs = List.nil();
-
-        for (int i=0;i<arity;i++) vs = vs.cons(read());
-
-        return new TupleL(vs.reverse());
-    }
-
-    private Array nil() { return new Array(List.nil()); }
-
+    
     private Array list() throws IOException, ParseException {
         final int length = buffer.getInt();
         List<Term> list = List.nil();
 
-        for (int i = 0; i < length; i++) {
-            list = list.cons(read());
-        }
-
+        for (int i = 0; i < length; i++) list = list.cons(read());
+        
         final Array tail = (Array) read();
         if (!tail.v.isEmpty()) {
-            //list = list.cons(new Nil());
-            list = list.cons(tail); // Nil
+            list = list.cons(tail);
         }
         return new Array(list.reverse());
-    }
-
-    private Bin bin() {
-        byte[] bin = new byte[buffer.getInt()];
-        buffer.get(bin);
-        return new Bin(bin);
-    }
-
-    private Str str() {
-        byte[] string = new byte[buffer.getShort()];
-        buffer.get(string);
-        return new Str(new String(string, ISO_8859_1));
     }
 
     public static Res<Term> parse(byte[] bin) {

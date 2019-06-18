@@ -20,20 +20,15 @@ public class Writer {
                 os.write(106);
                 return os;
             })
-            .orElse( bert.bt(b -> {
-                os.write(97);
-                os.write(b);
-                return os;
-            }))
             .orElse( bert.in(i -> {
-                os.write(98);
-                int v = i.intValue();
-                os.write(new byte[] {
-                     (byte) (v>>24),
-                     (byte) (v>>16),
-                     (byte) (v>> 8),
-                     (byte) v
-                 }, 0,4);
+                if (i > 255) {
+                    os.write(98);
+                    int v = i.intValue();
+                    os.write(new byte[] {(byte) (v>>24), (byte) (v>>16),(byte) (v>> 8), (byte) v}, 0,4);
+                } else {
+                    os.write(97);
+                    os.write(i);
+                }
                 return os;
             }))
             .orElse( bert.floatStr(d -> {
@@ -80,21 +75,18 @@ public class Writer {
                 }
                 return os;
             }))
-            .orElse(bert.tupL(terms -> {
-                os.write(105);
-                int len = terms.length();
-                os.write((byte)len >> 24);
-                os.write((byte)len >> 16);
-                os.write((byte)len >> 8);
-                os.write((byte)len);
-                
-                terms.foreachDoEffect(t -> write_(t));
-
-                return os;
-            }))
             .orElse(bert.tup(terms -> {
-                os.write(104);
-                os.write((byte)terms.length());
+                int arity = terms.length();
+                if (arity > 255){
+                    os.write(105);
+                    os.write((byte)(arity >> 24));
+                    os.write((byte)(arity >> 16));
+                    os.write((byte)(arity >> 8));
+                    os.write((byte) arity);
+                } else {
+                    os.write(104);
+                    os.write((byte) arity);
+                }
                 terms.foreachDoEffect(t -> write_(t));
                 return os;
             }))

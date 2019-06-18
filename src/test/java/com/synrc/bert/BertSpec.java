@@ -28,7 +28,7 @@ public class BertSpec {
     class Roster {
         List<User> users;
         String status;
-        BigDecimal pi;
+        double pi;
         byte b;
         int i;
         String atom;
@@ -36,7 +36,7 @@ public class BertSpec {
         BigInteger bi;
         List<String> map;
         
-        Roster(List<User>users, byte[] status, BigDecimal pi, byte b, int i, String atom, List<String> tup, /*BigInteger bi, */
+        Roster(List<User>users, byte[] status, double pi, byte b, int i, String atom, List<String> tup, /*BigInteger bi, */
             List<String> map) {
             this.users=users;
             this.status=new String(status, UTF_8);
@@ -131,7 +131,7 @@ public class BertSpec {
             el(1, list(userDecoder)), 
             el(2, binDec),
             el(3, floatDec),
-            el(4, byteDec),
+            el(4, intDec.map(i->i.byteValue())),
             el(5, intDec),
             el(6, atomDec),
             el(7, innerDecoder),
@@ -154,7 +154,7 @@ public class BertSpec {
             ele(1, liste(userEncoder)), 
             ele(2, binEnc),
             ele(3, floatEnc),
-            ele(4, byteEnc),
+            ele(4, intEnc.contramap(i -> i.intValue())),
             ele(5, intEnc),
             ele(6, guessAtomEnc),
             ele(7, listEncoder),
