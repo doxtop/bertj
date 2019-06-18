@@ -45,12 +45,18 @@ public class Parser {
             case 109: return bin();
             case 110: return big(true);
             case 111: return big(false);
-            case 115: return atom(buffer.get(), ISO_8859_1); 
+            case 115: return atom(buffer.get()& 0xff, ISO_8859_1); 
             case 116: return map();
             case 118: return atom(buffer.getShort(), UTF_8);
-            case 119: return atom(buffer.get(), UTF_8);
+            case 119: return atom(buffer.get()& 0xff, UTF_8);
             default: throw new RuntimeException("BERT?");
         }
+    }
+
+    private Atom atom(int len, Charset cs) {
+        byte[] atom = new byte[len];
+        buffer.get(atom);
+        return new Atom(new String(atom, cs), cs);
     }
 
     public Map map() throws IOException, ParseException {
@@ -75,12 +81,6 @@ public class Parser {
         // probably something custom to store, but slow and big integer for now
         BigInteger bi = new BigInteger(signum,lmag);// most significant first
         return new Big(bi);
-    }
-
-    private Atom atom(int len, Charset cs) {
-        byte[] atom = new byte[len];
-        buffer.get(atom);
-        return new Atom(new String(atom, cs), cs);
     }
 
     private In in() {

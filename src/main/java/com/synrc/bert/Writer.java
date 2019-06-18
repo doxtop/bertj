@@ -49,29 +49,33 @@ public class Writer {
                 }
                 return os;
             }))
-            .orElse( bert.atom((s,cs) -> {
-                // 115,118 atoms in a wild (erts 5.7.2+)
-                // requires to DFLAG_SMALL_ATOM_TAGS in distribution handshake
-                // we don't handshake and configure nothing
-                System.out.println("write atom " + s + " in " + cs);
-                short len = (short)s.length();
-                if (len > 255) {
-                    throw new RuntimeException("atom " + s + "to long");
-                    // check quotes if uppercase _ or @
-                    // escape sequences
-                }
-                if (cs == ISO_8859_1) {
-                    os.write(100);//os.write(115);
-                } else if (cs == UTF_8) {
-                    os.write(119);//os.write(118);
-                } else {
-                    throw new RuntimeException("Unsuported atom encoding.");
-                }
+            .orElse(bert.atom((s,cs) -> {
+                final short len = (short)s.length();
+                if (len > 255) throw new RuntimeException("atom " + s + " to long");
+                // check quotes if uppercase _  @ escape sequences
+                final byte[] atom = s.getBytes(cs);
+                final int size = atom.length;
+
                 try {
-                    os.write((byte) len >> 8);
-                    os.write((byte) len);
-                    os.write(s.getBytes(cs));
-                } catch(Exception e) {
+                    if (cs == ISO_8859_1) {
+                        // 115 atoms in a wild (erts 5.7.2+) requires to DFLAG_SMALL_ATOM_TAGS in distribution handshake
+                        os.write(100);
+                        os.write((byte) (len >> 8));
+                        os.write((byte) len);
+                        
+                    } else if (cs == UTF_8) {
+                        if (size > 255) {
+                            os.write(118);
+                            os.write((byte)(size >> 8));
+                            os.write((byte) size);
+                        } else {
+                            os.write(119);
+                            os.write((byte) size);
+                        }
+                    } else throw new RuntimeException("Unsuported atom encoding.");
+                    
+                    os.write(atom);
+                } catch (IOException e) {
                      System.out.println("atom not encoded:" + e.getMessage());
                 }
                 return os;

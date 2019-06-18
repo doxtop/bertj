@@ -76,7 +76,38 @@ public class BertSpec {
             70,64,9,30,(byte)184,81,(byte)235,(byte)133,31,
             97,(byte)128,
             98,0,0,1,0,
-            100,0,2,111,107,
+            //100,0,2,111,107,
+            //119,6,(byte)209,(byte)133,(byte)209,(byte)131,(byte)208,(byte)185,
+//   118,1,0,(byte)209,(byte)133,(byte)209,(byte)131,(byte)208,(byte)185,(byte)209,(byte)133,(byte)209,(byte)131,(byte)208,(byte)185,(byte)209,(byte)133,(byte)209,(byte)131,
+//   (byte)208,(byte)185,(byte)209,(byte)133,(byte)209,(byte)131,(byte)208,(byte)185,(byte)209,(byte)133,(byte)209,(byte)131,(byte)208,(byte)185,(byte)209,(byte)133,(byte)209,(byte)131,(byte)208,
+//   (byte)185,(byte)208,(byte)183,(byte)209,(byte)131,(byte)208,(byte)185,(byte)209,(byte)133,(byte)209,(byte)131,(byte)208,(byte)185,(byte)208,(byte)184,(byte)208,(byte)184,(byte)209,(byte)132,
+//   (byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,
+//   (byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)184,(byte)209,(byte)132,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,
+//   (byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,
+//   (byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,
+//   (byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,
+//   (byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,
+//   (byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,
+//   (byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)208,(byte)184,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,
+//   (byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,
+//   (byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132, 
+//   (byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,
+
+  119,(byte)254,(byte)209,(byte)133,(byte)209,(byte)131,(byte)208,(byte)185,(byte)209,(byte)133,(byte)209,(byte)131,(byte)208,(byte)185,(byte)209,(byte)133,(byte)209,(byte)131,(byte)
+  (byte)208,(byte)185,(byte)209,(byte)133,(byte)209,(byte)131,(byte)208,(byte)185,(byte)209,(byte)133,(byte)209,(byte)131,(byte)208,(byte)185,(byte)209,(byte)133,(byte)209,(byte)131,(byte)208,(byte)
+  (byte)185,(byte)208,(byte)183,(byte)209,(byte)131,(byte)208,(byte)185,(byte)209,(byte)133,(byte)209,(byte)131,(byte)208,(byte)185,(byte)208,(byte)184,(byte)208,(byte)184,(byte)209,(byte)132,(byte)
+  (byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)
+  (byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)184,(byte)209,(byte)132,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)
+  (byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)
+  (byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)
+  (byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)
+  (byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)
+  (byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)
+  (byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)209,(byte)132,(byte)208,(byte)184,(byte)208,(byte)178,(byte)208,(byte)184,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)
+  (byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)
+  (byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte) 
+  (byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,(byte)209,(byte)132,
+
             104,1,100,0,2,111,107,//105,0,0,0,1,100,0,2,111,107
             //110,8,0,(byte)255,(byte)255,(byte)255,(byte)255,(byte)255,(byte)255,(byte)255,31, //2305843009213693951
             116,0,0,0,1,
@@ -125,7 +156,7 @@ public class BertSpec {
             ele(3, floatEnc),
             ele(4, byteEnc),
             ele(5, intEnc),
-            ele(6, atomEnc),
+            ele(6, guessAtomEnc),
             ele(7, listEncoder),
 //            ele(8, bigEnc),
             ele(8, mapEncoder),

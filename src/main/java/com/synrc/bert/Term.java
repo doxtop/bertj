@@ -18,7 +18,7 @@ public class Term {
     public Res<BigDecimal>  floatStr() { return floatStr(Res::ok).orSome(Res.fail(this + " is not a float"));}
     public Res<Byte>    bt()  { return bt(Res::ok).orSome(Res.fail(this + " is not a byte"));}
     public Res<Integer> in()  { return in(Res::ok).orSome(Res.fail(this + " is not a integer"));}
-    public Res<String> atom(Charset cs) { return atom((v,c) -> v).map(Res::ok).orSome(Res.fail(this + " is not an atom in " + cs));}
+    public Res<String> atom() { return atom((v,c) -> v).map(Res::ok).orSome(Res.fail(this + " is not an atom"));}
     
     public Res<BigInteger> big()  { return big(Res::ok).orSome(Res.fail(this + " is not an big"));}
 

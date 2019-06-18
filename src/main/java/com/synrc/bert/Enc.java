@@ -25,6 +25,7 @@ public interface Enc<T> extends F<T, Term> {
     public static Enc<Integer>  intEnc = Term::in;
     public static Enc<String>   atomEnc = v -> Term.atom(v, ISO_8859_1);
     public static Enc<String>   atomUtf8Enc = v-> Term.atom(v, UTF_8);
+    public static Enc<String>   guessAtomEnc = v -> Term.atom(v, new String(new String(v.getBytes(ISO_8859_1), UTF_8).getBytes(UTF_8), ISO_8859_1).equals(v) ? ISO_8859_1 : UTF_8);
     public static Enc<BigInteger> bigEnc = Term::big;
 
     public static <T> Enc<List<T>> liste(Enc<T> enc) {
