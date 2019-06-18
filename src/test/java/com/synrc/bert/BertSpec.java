@@ -3,8 +3,10 @@ package com.synrc.bert;
 import org.junit.*;
 import fj.*;
 import fj.data.List;
+import fj.data.HashMap;
 import fj.data.hlist.HList;
 import java.util.Arrays;
+import java.util.Map;
 import java.math.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static com.synrc.bert.Dec.*;
@@ -34,10 +36,12 @@ public class BertSpec {
         String atom;
         List<String> tup;
         BigInteger bi;
-        List<String> map;
+        //List<String> map;
+        Map<String, String> map;
         
         Roster(List<User>users, byte[] status, double pi, byte b, int i, String atom, List<String> tup, /*BigInteger bi, */
-            List<String> map) {
+            Map<String,String> map){
+            //List<String> map) {
             this.users=users;
             this.status=new String(status, UTF_8);
             this.pi = pi;
@@ -125,7 +129,18 @@ public class BertSpec {
         // map tuples to object with decoder combinations
         final F<String, List<String>> f = a -> List.<String>nil().cons(a);
         final Dec<List<String>> innerDecoder = tuple(el(1,atomDec), f);
-        final Dec<List<String>> mapDecoder = mapa(stringDec);
+        final Dec<Map<String,String>> mapDecoder = mp(stringDec).map(l -> {
+            List<String> keys = List.nil();
+            List<String> vals = List.nil();
+            for (int i=0;i<l.length();i++) {
+                if (i % 2 == 0) {
+                    keys = keys.cons(l.index(i));
+                } else {
+                    vals = vals.cons(l.index(i));
+                }
+            }
+            return HashMap.iterableHashMap(keys.zip(vals)).toMap();
+        });
         final Dec<User> userDecoder     = tuple(el(1, stringDec), el(2, stringDec), User::new);
         final Dec<Roster> rosterDecoder = tuple(
             el(1, list(userDecoder)), 
@@ -147,7 +162,13 @@ public class BertSpec {
         final Enc<List<String>> listEncoder = tuplee(ele(1, atomEnc), l -> l.head());
         final Enc<User> userEncoder = tuplee(ele(1, stringEnc), ele(2, stringEnc), user -> P.p(user.org, user.name));
         // from list to p2
-        final Enc<List<String>> mapEncoder = mape(stringEnc);
+        //final Enc<List<String>> mapEncoder = mape(stringEnc);
+        final Enc<Map<String,String>> mapEncoder = mape(stringEnc).contramap(map -> {
+            final List<String> keys = List.iterableList(map.keySet());
+            final List<String> vals = List.iterableList(map.values());
+            List<List<String>> terms = keys.zipWith(vals, (t,s) -> List.list(t,s));
+            return List.<String>join().f(terms);
+        });
 
         final Enc<List<byte[]>> binEncoder = tuplee(ele(1, binEnc), l -> l.head());
         final Enc<Roster> rosterEncoder = tuplee(

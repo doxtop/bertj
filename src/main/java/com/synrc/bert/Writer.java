@@ -33,13 +33,10 @@ public class Writer {
             }))
             .orElse( bert.floatStr(d -> {
                 os.write(99);
-                final String s = String.format("%.20e", d);
-                byte[] fl = s.getBytes(ISO_8859_1);
-                ByteBuffer buf = ByteBuffer.allocate(31).order(ByteOrder.BIG_ENDIAN);
-                buf.put(fl);
+                final ByteBuffer buf = ByteBuffer.allocate(31).order(ByteOrder.BIG_ENDIAN).put(String.format("%.20e", d).getBytes(ISO_8859_1));
                 try {
                      os.write(buf.array());
-                } catch(IOException e) {
+                } catch (IOException e) {
                      System.out.println("float is not encoded: " + e.getMessage());
                 }
                 return os;
@@ -87,7 +84,7 @@ public class Writer {
                     os.write(104);
                     os.write((byte) arity);
                 }
-                terms.foreachDoEffect(t -> write_(t));
+                terms.forEach(t -> write_(t));
                 return os;
             }))
             .orElse( bert.flt(d -> {
@@ -121,29 +118,23 @@ public class Writer {
                 return os;
             })) 
             .orElse(bert.list(list -> {
-                System.out.println("write list 108" + list);
                 os.write(108);
                 int len = list.length()-1;
                 os.write((byte)len >> 24);
                 os.write((byte)len >> 16);
                 os.write((byte)len >> 8);
                 os.write((byte)len);
-                list.foreachDoEffect(t -> write_(t));
+                list.forEach(t -> write_(t));
                 return os;
             }))
             .orElse(bert.big(b -> {
-                // byte size 255
-                //System.out.println("Write " + b + "sign:" + b.signum());
                 final byte[] big = b.toByteArray();
-                
                 final int len = big.length;
                 
-                if(len - 1 <= 255) {
+                if (len - 1 <= 255) {
                     os.write(110);
                     os.write((byte)len);
                 } else {
-                    // not tested yet
-                    System.out.println("Write 111 " + len);
                     os.write(111);
                     os.write((byte)len >> 24);
                     os.write((byte)len >> 16);
@@ -160,17 +151,20 @@ public class Writer {
                 
                 return os;
             }))
-            .orElse(bert.mp(list -> {
-                Map<Term,Term> m = ((Term.Map)bert.mp(list)).v;
+            .orElse(bert.mp(map -> {
                 os.write(116);
-                int arity = m.size();
+                int arity = map.length()/2;
                 os.write((byte)arity >> 24);
                 os.write((byte)arity >> 16);
                 os.write((byte)arity >> 8);
                 os.write((byte)arity);
 
-                m.entrySet().forEach(e -> {write_(e.getKey());write_(e.getValue());});
-
+                for(int i=0; i<map.length();i++) {
+                    final Term e = map.index(i++);
+                    final Term e1 = map.index(i);
+                    write_(e1);
+                    write_(e);
+                }
                 return os;
             }))
             .map(os -> os.toByteArray())

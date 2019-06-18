@@ -28,11 +28,11 @@ public interface Dec<T> extends F<Term, Res<T>> {
     }
 
     public static <S> Dec<List<S>> list(Dec<S> ds) {
-        return term -> term.list(list -> Res.seq(list.map(ds))).orSome(Res.fail(term + " isn't a list"));
+        return term -> term.list(l -> Res.seq(l.map(ds))).orSome(Res.fail(term + " isn't a list"));
     }
 
-    public static <S> Dec<List<S>> mapa(Dec<S> ds) {
-        return term -> term.mp(list -> Res.seq(list.map(ds))).orSome(Res.fail(term + " isn't a map."));
+    public static <S> Dec<List<S>> mp(Dec<S> ds) {
+        return term -> term.mp(l -> Res.seq(l.map(ds))).orSome(Res.fail(term + " isn't a list"));
     }
 
     public static <T> Dec<P1<T>> tuple(ElementDec<T> td) {

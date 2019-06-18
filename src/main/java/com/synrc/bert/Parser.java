@@ -59,9 +59,9 @@ public class Parser {
 
     public Map map() throws IOException, ParseException {
         int arity = buffer.getInt();
-        java.util.Map<Term,Term> map = new HashMap<>();
+        List<Term> map = List.nil();
 
-        for(int i=0;i<arity;i++) map.put(read(),read());
+        for(int i=0;i<arity;i++) map = map.cons(read()).cons(read());
 
         return new Map(map);
     }
