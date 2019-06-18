@@ -17,12 +17,12 @@ public class Term {
     final Object v;
     private Term(Object v) { this.v = v; }
 
-    public Res<String>  str() { return str(Res::ok).orElse(Res.fail(this + " is not a string"));}
-    public Res<byte[]>  bin() { return bin(Res::ok).orElse(Res.fail(this + " is not a binary"));}
-    public Res<Number> flt() { return flt(Res::ok).orElse(Res.fail(this + " is not a float"));}
-    public Res<Integer> in()  { return in(Res::ok).orElse(Res.fail(this + " is not a integer"));}
-    public Res<String> atom() { return atom((v,c) -> v).map(Res::ok).orElse(Res.fail(this + " is not an atom"));}
-    public Res<BigInteger> big()  { return big(Res::ok).orElse(Res.fail(this + " is not an big"));}
+    public Res<String>  str()   { return str(Res::ok).orElse(Res.fail(this + " is not a string")); }
+    public Res<byte[]> bin()    { return bin(Res::ok).orElse(Res.fail(this + " is not a binary")); }
+    public Res<Number> flt()    { return flt(Res::ok).orElse(Res.fail(this + " is not a float")); }
+    public Res<Integer> in()    { return in(Res::ok).orElse(Res.fail(this + " is not a integer")); }
+    public Res<String> atom()   { return atom((v,c) -> v).map(Res::ok).orElse(Res.fail(this + " is not an atom")); }
+    public Res<BigInteger> big(){ return big(Res::ok).orElse(Res.fail(this + " is not an big")); }
 
     public static Term str(String str)   { return new Str(str); }
     public static Term bin(byte[] bin)   { return new Bin(bin); }
@@ -83,7 +83,6 @@ public class Term {
 
     public static class Tuple extends Term {
         public Tuple(List<Term> v) { super(v); }
-
         public <T> Optional<T> tup(F<List<Term>, T> f) { return ofNullable(f.f((List<Term>)v)); }
         public Tuple ins(int index, Term x) { return new Tuple(((List<Term>)v).snoc(x));};
     }
