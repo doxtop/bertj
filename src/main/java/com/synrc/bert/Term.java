@@ -1,12 +1,16 @@
 package com.synrc.bert;
 
-import fj.*;
-import fj.data.*;
-import static fj.data.Option.none;
+import fj.F;
+import fj.F0;
+import fj.F2;
+import fj.data.Option;
+import fj.data.List;
+import fj.data.HashMap;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
-import java.util.stream.*;
+
+import static fj.data.Option.none;
 
 public class Term {
     Object v;

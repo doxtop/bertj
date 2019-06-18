@@ -1,21 +1,20 @@
 package com.synrc.bert;
 
-import fj.*;
 import fj.data.List;
 import fj.data.Either;
-import java.nio.*;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import static com.synrc.bert.Term.*;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.Charset;
-import static java.nio.charset.StandardCharsets.ISO_8859_1;
-import static java.nio.charset.StandardCharsets.UTF_8;
+import java.io.IOException;
+import java.util.HashMap;
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.ParseException;
+
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static com.synrc.bert.Term.*;
 
 public class Parser {
     final ByteBuffer buffer;

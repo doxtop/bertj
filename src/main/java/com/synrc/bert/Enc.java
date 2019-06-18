@@ -1,21 +1,17 @@
 package com.synrc.bert;
 
 import fj.*;
-import static fj.P.p;
 import fj.data.List;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static fj.P.p;
 
-public interface Enc<T> extends F<T, Term> {
+public interface Enc<T> {
     Term encode(T v);
 
-    @Override default Term f(T v) { return encode(v); }
-
-    default <S> Enc<S> contramap(F<S,T> f){
-        return v -> this.encode(f.f(v));
-    }
+    default <S> Enc<S> contramap(F<S,T> f) { return v -> this.encode(f.f(v)); }
 
     public static Enc<String>   stringEnc = Term::str;
     public static Enc<byte[]>   binEnc  = Term::bin;

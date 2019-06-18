@@ -3,11 +3,12 @@ package com.synrc.bert;
 import fj.*;
 import fj.data.List;
 import fj.data.Option;
-import static fj.P.p;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static fj.P.p;
 
 public interface Dec<T> extends F<Term, Res<T>> {
     Res<T> decode(Term v);
