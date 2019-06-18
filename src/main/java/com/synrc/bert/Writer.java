@@ -49,24 +49,34 @@ public class Writer {
                 }
                 return os;
             }))
-            .orElse( bert.atom(s -> {
-                //System.out.println("write atom " + s);
-                // check latin1 and 255 len
-                // force utf8 enc, write 110,115 -> 118,119
-                os.write(100);
-                byte[] atom = s.getBytes(ISO_8859_1);
+            .orElse( bert.atom((s,cs) -> {
+                // 115,118 atoms in a wild (erts 5.7.2+)
+                // requires to DFLAG_SMALL_ATOM_TAGS in distribution handshake
+                // we don't handshake and configure nothing
+                System.out.println("write atom " + s + " in " + cs);
                 short len = (short)s.length();
-                if(len > 255) throw new RuntimeException("atom " + s + "to long");
-                os.write((byte) len >> 8);
-                os.write((byte) len);
-                try{
-                    os.write(atom);
-                }catch(IOException e){
-                    System.out.println("atom not encoded:" + e.getMessage());
+                if (len > 255) {
+                    throw new RuntimeException("atom " + s + "to long");
+                    // check quotes if uppercase _ or @
+                    // escape sequences
+                }
+                if (cs == ISO_8859_1) {
+                    os.write(100);//os.write(115);
+                } else if (cs == UTF_8) {
+                    os.write(119);//os.write(118);
+                } else {
+                    throw new RuntimeException("Unsuported atom encoding.");
+                }
+                try {
+                    os.write((byte) len >> 8);
+                    os.write((byte) len);
+                    os.write(s.getBytes(cs));
+                } catch(Exception e) {
+                     System.out.println("atom not encoded:" + e.getMessage());
                 }
                 return os;
             }))
-            .orElse( bert.tupL(terms -> {
+            .orElse(bert.tupL(terms -> {
                 os.write(105);
                 int len = terms.length();
                 os.write((byte)len >> 24);

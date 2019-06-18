@@ -5,6 +5,8 @@ import static fj.P.p;
 import fj.data.List;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public interface Enc<T> extends F<T, Term> {
     Term encode(T v);
@@ -21,7 +23,8 @@ public interface Enc<T> extends F<T, Term> {
     public static Enc<BigDecimal>   floatStrEnc = Term::floatStr;
     public static Enc<Byte>     byteEnc = Term::bt;
     public static Enc<Integer>  intEnc = Term::in;
-    public static Enc<String>   atomEnc = Term::atom;
+    public static Enc<String>   atomEnc = v -> Term.atom(v, ISO_8859_1);
+    public static Enc<String>   atomUtf8Enc = v-> Term.atom(v, UTF_8);
     public static Enc<BigInteger> bigEnc = Term::big;
 
     public static <T> Enc<List<T>> liste(Enc<T> enc) {

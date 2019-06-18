@@ -6,6 +6,8 @@ import fj.data.Option;
 import static fj.P.p;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public interface Dec<T> extends F<Term, Res<T>> {
     Res<T> decode(Term v);
@@ -14,11 +16,12 @@ public interface Dec<T> extends F<Term, Res<T>> {
 
     public static final Dec<String> stringDec = Term::str;
     public static final Dec<byte[]> binDec = Term::bin;
-    public static final Dec<BigDecimal> floatDec = Term::float754;   // double easy
+    public static final Dec<BigDecimal> floatDec = Term::float754;
     public static final Dec<BigDecimal> floatSrtDec = Term::floatStr;// deprecate
     public static final Dec<Byte> byteDec = Term::bt;
     public static final Dec<Integer> intDec = Term::in;
-    public static final Dec<String> atomDec = Term::atom;
+    public static final Dec<String> atomDec = t -> t.atom(ISO_8859_1);
+    public static final Dec<String> utf8AtomDec = t -> t.atom(UTF_8);
     public static final Dec<BigInteger> bigDec = Term::big;
 
     public static interface ElementDec<A> {

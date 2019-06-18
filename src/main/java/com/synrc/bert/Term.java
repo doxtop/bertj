@@ -18,7 +18,8 @@ public class Term {
     public Res<BigDecimal>  floatStr() { return floatStr(Res::ok).orSome(Res.fail(this + " is not a float"));}
     public Res<Byte>    bt()  { return bt(Res::ok).orSome(Res.fail(this + " is not a byte"));}
     public Res<Integer> in()  { return in(Res::ok).orSome(Res.fail(this + " is not a integer"));}
-    public Res<String> atom()  { return atom(Res::ok).orSome(Res.fail(this + " is not an atom"));}
+    public Res<String> atom(Charset cs) { return atom((v,c) -> v).map(Res::ok).orSome(Res.fail(this + " is not an atom in " + cs));}
+    
     public Res<BigInteger> big()  { return big(Res::ok).orSome(Res.fail(this + " is not an big"));}
 
     public static Term str(String str) { return new Str(str); }
@@ -28,7 +29,7 @@ public class Term {
     public static Term floatStr(BigDecimal v) { return new FloatStr(v);}
     public static Term bt(Byte v) { return new Bt(v.byteValue());}
     public static Term in(Integer v) { return new In(v.intValue());}
-    public static Term atom(String v) { return new Atom(v); }
+    public static Term atom(String v, Charset cs) { return new Atom(v, cs); }
     public static Term big(BigInteger v){ return new Big(v);}
     public static Term mp(List<Term> l) {
         List<Term> keys = List.nil();
@@ -53,7 +54,7 @@ public class Term {
     public <T> Option<T> floatStr(F<BigDecimal,T> f) { return none(); }
     public <T> Option<T> bt(F<Byte,T> f) { return none(); }
     public <T> Option<T> in(F<Integer,T> f) { return none(); }
-    public <T> Option<T> atom(F<String,T> f) {return none();}
+    public <T> Option<T> atom(F2<String,Charset,T> f) {return none();}
     public <T> Option<T> big(F<BigInteger,T> f) { return none(); }
     public <T> Option<T> mp(F<List<Term>,T> f) { return none(); }
     
@@ -77,9 +78,9 @@ public class Term {
 
     public static final class Atom extends Term {
         final String v;
-        private Charset charset;// latin1 - in minor_version 0,1. 2 in utf8
-        public Atom(String v){ super(v);this.v=v; }
-        public <T> Option<T> atom(F<String,T> f) {return Option.some(f.f(v));}
+        final Charset charset;
+        public Atom(String v, Charset cs){ super(v);this.v=v; this.charset = cs; }
+        public <T> Option<T> atom(F2<String,Charset,T> f) {return Option.some(f.f(v,charset));}
     }
 
     public static final class In extends Term {
