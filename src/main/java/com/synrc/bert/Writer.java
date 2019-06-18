@@ -90,19 +90,10 @@ public class Writer {
                 terms.foreachDoEffect(t -> write_(t));
                 return os;
             }))
-            .orElse( bert.float754(d -> {
+            .orElse( bert.flt(d -> {
                 long v = Double.doubleToRawLongBits(d.doubleValue());
                 os.write(70);
-                byte[] ba = new byte[] {
-                    (byte) (v >> 56),
-                    (byte) (v >> 48),
-                    (byte) (v >> 40),
-                    (byte) (v >> 32),
-                    (byte) (v >> 24),
-                    (byte) (v >> 16),
-                    (byte) (v >> 8),
-                    (byte) v
-                };
+                byte[] ba = new byte[] {(byte) (v >> 56),(byte) (v >> 48),(byte) (v >> 40),(byte) (v >> 32),(byte) (v >> 24),(byte) (v >> 16),(byte) (v >> 8),(byte) v};
                 os.write(ba, 0, 8);
                 return os;
             }))

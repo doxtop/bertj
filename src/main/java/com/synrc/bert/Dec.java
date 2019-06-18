@@ -16,7 +16,7 @@ public interface Dec<T> extends F<Term, Res<T>> {
 
     public static final Dec<String> stringDec = Term::str;
     public static final Dec<byte[]> binDec = Term::bin;
-    public static final Dec<Double> floatDec = Term::float754;
+    public static final Dec<Double> floatDec = Term::flt;
     public static final Dec<BigDecimal> floatSrtDec = Term::floatStr;
     public static final Dec<Integer> intDec = Term::in;
     public static final Dec<String> atomDec = Term::atom;

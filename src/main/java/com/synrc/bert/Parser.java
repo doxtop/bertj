@@ -31,7 +31,7 @@ public class Parser {
 
     private Term read() throws IOException, ParseException {
         switch(buffer.get() & 0xff) {
-            case 70:  return new Fload754(buffer.getDouble());
+            case 70:  return new Flt(buffer.getDouble());
             case 97:  return new Int(buffer.get() & 0xff);
             case 98:  return new Int(buffer.getInt());
             case 99:  return floatStr();
