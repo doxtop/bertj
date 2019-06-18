@@ -13,27 +13,21 @@ public class Writer {
 
     private Writer() {
         this.os = new ByteArrayOutputStream();
-        os.write(-125);
+        os.write((byte)131);
     }
 
-    private byte[] write_(Term bert){
-        return bert.nil(() -> {
-                os.write(106);
-                return os;
-            })
-            .orElse(bert.in(i -> {
+    private byte[] write_(Term bert) { // keep size in term ?
+        return bert.<ByteArrayOutputStream>nil(() -> { os.write(106); return os;} )
+            .orElseGet(() -> bert.<ByteArrayOutputStream>in(i -> {
                 if (i > 255) {
                     os.write(98);
-                    int v = i.intValue();
-                    os.write(new byte[] {(byte) (v>>24), (byte) (v>>16),(byte) (v>> 8), (byte) v}, 0,4);
+                    writeInt(i.intValue());
                 } else {
                     os.write(97);
                     os.write(i);
                 }
                 return os;
-            }))
-            
-            .orElse(bert.atom((s,cs) -> {
+            }).orElseGet(() -> bert.atom((s,cs) -> {
                 final short len = (short)s.length();
                 if (len > 255) throw new RuntimeException("atom " + s + " to long");
                 // check quotes if uppercase _  @ escape sequences
@@ -63,23 +57,18 @@ public class Writer {
                      System.out.println("atom not encoded:" + e.getMessage());
                 }
                 return os;
-            }))
-            .orElse(bert.tup(terms -> {
+            }).orElseGet(() -> bert.tup(terms -> {
                 int arity = terms.length();
                 if (arity > 255){
                     os.write(105);
-                    os.write((byte)(arity >> 24));
-                    os.write((byte)(arity >> 16));
-                    os.write((byte)(arity >> 8));
-                    os.write((byte) arity);
+                    writeInt(arity);
                 } else {
                     os.write(104);
                     os.write((byte) arity);
                 }
                 terms.forEach(t -> write_(t));
                 return os;
-            }))
-            .orElse(bert.flt(d -> {
+            }).orElseGet(() -> bert.flt(d -> {
                 try {
                     if (d instanceof BigDecimal) {
                         os.write(99);
@@ -95,8 +84,7 @@ public class Writer {
                      System.out.println("float is not encoded: " + e.getMessage());
                 }
                 return os;
-            }))
-            .orElse( bert.str(s -> {
+            }).orElseGet(() -> bert.str(s -> {
                 os.write(107);// check 65535 bytes 
                 byte[] str = s.getBytes(ISO_8859_1);
                 short len = (short)str.length;
@@ -108,40 +96,27 @@ public class Writer {
                     System.out.println("str not encoded:" + e.getMessage());
                 }
                 return os;
-            }))
-            .orElse(bert.bin(bin -> {
+            }).orElseGet(() -> bert.bin(bin -> {
                 os.write(109);
                 int len = bin.length;
-                os.write((byte)len >> 24);
-                os.write((byte)len >> 16);
-                os.write((byte)len >> 8);
-                os.write((byte)len);
+                writeInt(len);
                 os.write(bin, 0, len);
                 return os;
-            })) 
-            .orElse(bert.list(list -> {
+            }).orElseGet(() -> bert.list(list -> {
                 os.write(108);
-                int len = list.length()-1;
-                os.write((byte)len >> 24);
-                os.write((byte)len >> 16);
-                os.write((byte)len >> 8);
-                os.write((byte)len);
+                writeInt(list.length() - 1);//nil
                 list.forEach(t -> write_(t));
                 return os;
-            }))
-            .orElse(bert.big(b -> {
+            }).orElseGet(() -> bert.big(b -> {
                 final byte[] big = b.toByteArray();
                 final int len = big.length;
                 
-                if (len - 1 <= 255) {
+                if (len <= 254) {
                     os.write(110);
                     os.write((byte)len);
                 } else {
                     os.write(111);
-                    os.write((byte)len >> 24);
-                    os.write((byte)len >> 16);
-                    os.write((byte)len >> 8);
-                    os.write((byte)len);
+                    writeInt(len);
                 }
                 int signum = b.signum();
                 byte sign = 0;
@@ -152,14 +127,10 @@ public class Writer {
                 for(int i=len-1;i>=0;i--) os.write(big[i]);
                 
                 return os;
-            }))
-            .orElse(bert.mp(map -> {
+            }).orElseGet(() -> bert.mp(map -> {
                 os.write(116);
                 int arity = map.length()/2;
-                os.write((byte)arity >> 24);
-                os.write((byte)arity >> 16);
-                os.write((byte)arity >> 8);
-                os.write((byte)arity);
+                writeInt(arity);
 
                 for(int i=0; i<map.length();i++) {
                     final Term e = map.index(i++);
@@ -168,9 +139,15 @@ public class Writer {
                     write_(e);
                 }
                 return os;
-            }))
-            .map(os -> os.toByteArray())
-            .orSome(() -> os.toByteArray());
+            }).orElse(os))))))))))
+            .toByteArray();
+    }
+
+    private void writeInt(int i) {
+        os.write((byte)(i >> 24));
+        os.write((byte)(i >> 16));
+        os.write((byte)(i >> 8));
+        os.write((byte)i);
     }
 
     public static Res<byte[]> write(Term bert){

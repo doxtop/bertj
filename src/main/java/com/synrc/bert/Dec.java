@@ -27,15 +27,15 @@ public interface Dec<T> extends F<Term, Res<T>> {
     }
 
     public static <S> Dec<List<S>> list(Dec<S> ds) {
-        return term -> term.list(l -> Res.seq(l.map(ds))).orSome(Res.fail(term + " isn't a list"));
+        return term -> term.list(l -> Res.seq(l.map(ds))).orElse(Res.fail(term + " isn't a list"));
     }
 
     public static <S> Dec<List<S>> mp(Dec<S> ds) {
-        return term -> term.mp(l -> Res.seq(l.map(ds))).orSome(Res.fail(term + " isn't a list"));
+        return term -> term.mp(l -> Res.seq(l.map(ds))).orElse(Res.fail(term + " isn't a list"));
     }
 
     public static <T> Dec<P1<T>> tuple(ElementDec<T> td) {
-        return o -> o.tup(l -> td.apply(l).map(e -> P.p(e))).orSome(Res.fail("Tuple expected " + o));
+        return o -> o.tup(l -> td.apply(l).map(e -> P.p(e))).orElse(Res.fail("Tuple expected " + o));
     }
 
     public static <T,S> Dec<S> tuple(ElementDec<T> t, F<T,S> f) {
@@ -43,7 +43,7 @@ public interface Dec<T> extends F<Term, Res<T>> {
     }
 
     public static <T, S> Dec<P2<T,S>> tuple(ElementDec<T> t, ElementDec<S> s) {
-        return o -> o.tup(pair(t, s)::apply).orSome(Res.fail("Tuple expected " + o));
+        return o -> o.tup(pair(t, s)::apply).orElse(Res.fail("Tuple expected " + o));
     }
 
     public static <T, S, U> Dec<U> tuple(ElementDec<T> t, ElementDec<S> s, F2<T, S, U> f) {
@@ -52,7 +52,7 @@ public interface Dec<T> extends F<Term, Res<T>> {
 
     public static <T, S, U> Dec<P3<T,S,U>> tuple(ElementDec<T> t, ElementDec<S> s, ElementDec<U> u) {
         return o -> o.tup(tup -> pair(t, pair(s,u)).apply(tup).map(Dec::flat3))
-            .orSome(Res.fail("Tuple expected " + o));
+            .orElse(Res.fail("Tuple expected " + o));
     }
 
     public static <T,S,U,V> Dec<V> tuple(ElementDec<T> t, ElementDec<S> s, ElementDec<U> u, F3<T,S,U,V> f) {
@@ -61,7 +61,7 @@ public interface Dec<T> extends F<Term, Res<T>> {
 
     public static <T,S,U,V> Dec<P4<T,S,U,V>> tuple(ElementDec<T> t, ElementDec<S> s, ElementDec<U> u,ElementDec<V> v){
         return o -> o.tup(tup -> pair(t, pair(s, pair(u,v))).apply(tup).map(Dec::flat4))
-            .orSome(Res.fail("Tuple expected " + o));
+            .orElse(Res.fail("Tuple expected " + o));
     }
 
     public static <T,S,U,V,W> Dec<W> tuple(ElementDec<T> t, ElementDec<S> s, ElementDec<U> u,ElementDec<V> v, F4<T,S,U,V,W> f) {
@@ -70,7 +70,7 @@ public interface Dec<T> extends F<Term, Res<T>> {
 
     public static <T,S,U,V,W> Dec<P5<T,S,U,V,W>> tuple(ElementDec<T> t, ElementDec<S> s, ElementDec<U> u,ElementDec<V> v, ElementDec<W> w) {
         return o -> o.tup(tup -> pair(t, pair(s, pair(u, pair(v,w)))).apply(tup).map(Dec::flat5))
-            .orSome(Res.fail("Tuple expected " + o));
+            .orElse(Res.fail("Tuple expected " + o));
     }
 
     public static <T,S,U,V,W,X> Dec<X> tuple(ElementDec<T> t, ElementDec<S> s, ElementDec<U> u,ElementDec<V> v, ElementDec<W> w, F5<T,S,U,V,W,X> f) {
@@ -79,7 +79,7 @@ public interface Dec<T> extends F<Term, Res<T>> {
 
     public static <T,S,U,V,W,X> Dec<P6<T,S,U,V,W,X>> tuple(ElementDec<T> t, ElementDec<S> s, ElementDec<U> u,ElementDec<V> v, ElementDec<W> w,ElementDec<X> x) {
         return o -> o.tup(tup -> pair(t, pair(s, pair(u, pair(v, pair(w,x))))).apply(tup).map(Dec::flat6))
-            .orSome(Res.fail("Tuple expected " + o));
+            .orElse(Res.fail("Tuple expected " + o));
     }
 
     public static <T,S,U,V,W,X,Y> Dec<Y> tuple(ElementDec<T> t, ElementDec<S> s, ElementDec<U> u,ElementDec<V> v, ElementDec<W> w,ElementDec<X> x, F6<T,S,U,V,W,X,Y> f) {
@@ -88,7 +88,7 @@ public interface Dec<T> extends F<Term, Res<T>> {
 
     public static <T,S,U,V,W,X,Y> Dec<P7<T,S,U,V,W,X,Y>> tuple(ElementDec<T> t, ElementDec<S> s, ElementDec<U> u,ElementDec<V> v, ElementDec<W> w,ElementDec<X> x,ElementDec<Y> y) {
         return o -> o.tup(tup -> pair(t, pair(s, pair(u, pair(v, pair(w, pair(x,y)))))).apply(tup).map(Dec::flat7))
-            .orSome(Res.fail("Tuple expected " + o));
+            .orElse(Res.fail("Tuple expected " + o));
     }
 
     public static <T,S,U,V,W,X,Y,Z> Dec<Z> tuple(ElementDec<T> t, ElementDec<S> s, ElementDec<U> u,ElementDec<V> v, ElementDec<W> w,ElementDec<X> x, ElementDec<Y> y, F7<T,S,U,V,W,X,Y,Z> f) {
@@ -97,7 +97,7 @@ public interface Dec<T> extends F<Term, Res<T>> {
 
     public static <T,S,U,V,W,X,Y,Z> Dec<P8<T,S,U,V,W,X,Y,Z>> tuple(ElementDec<T> t, ElementDec<S> s, ElementDec<U> u,ElementDec<V> v, ElementDec<W> w,ElementDec<X> x,ElementDec<Y> y,ElementDec<Z> z) {
         return o -> o.tup(tup -> pair(t, pair(s, pair(u, pair(v, pair(w, pair(x, pair(y,z))))))).apply(tup).map(Dec::flat8))
-            .orSome(Res.fail("Tuple expected " + o));
+            .orElse(Res.fail("Tuple expected " + o));
     }
 
     public static <T,S,U,V,W,X,Y,Z,R> Dec<R> tuple(ElementDec<T> t, ElementDec<S> s, ElementDec<U> u,ElementDec<V> v, ElementDec<W> w,ElementDec<X> x, ElementDec<Y> y,ElementDec<Z> z, F8<T,S,U,V,W,X,Y,Z,R> f) {
