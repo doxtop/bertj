@@ -17,8 +17,7 @@ public class Term {
 
     public Res<String>  str() { return str(Res::ok).orSome(Res.fail(this + " is not a string"));}
     public Res<byte[]>  bin() { return bin(Res::ok).orSome(Res.fail(this + " is not a binary"));}
-    public Res<Double>  flt() { return flt(Res::ok).orSome(Res.fail(this + " is not a float"));}
-    public Res<BigDecimal>  floatStr() { return floatStr(Res::ok).orSome(Res.fail(this + " is not a float"));}
+    public Res<Number> flt() { return flt(Res::ok).orSome(Res.fail(this + " is not a float"));}
     public Res<Integer> in()  { return in(Res::ok).orSome(Res.fail(this + " is not a integer"));}
     public Res<String> atom() { return atom((v,c) -> v).map(Res::ok).orSome(Res.fail(this + " is not an atom"));}
     public Res<BigInteger> big()  { return big(Res::ok).orSome(Res.fail(this + " is not an big"));}
@@ -26,8 +25,7 @@ public class Term {
     public static Term str(String str) { return new Str(str); }
     public static Term bin(byte[] bin) { return new Bin(bin); }
     public static Term list(List<Term> l) {return new Array(l.snoc(new Nil()));}
-    public static Term flt(double v) { return new Flt(v);}
-    public static Term floatStr(BigDecimal v) { return new FloatStr(v);}
+    public static Term flt(Number v) { return new Flt(v);}
     public static Term in(Integer v) { return new Int(v.intValue());}
     public static Term atom(String v, Charset cs) { return new Atom(v, cs); }
     public static Term big(BigInteger v) { return new Big(v); }
@@ -38,8 +36,7 @@ public class Term {
     public <T> Option<T> tup(F<List<Term>, T> f) { return none(); }
     public <T> Option<T> list(F<List<Term>, T> f) { return none(); }
     public <T> Option<T> nil(F0<T> f) { return none(); }
-    public <T> Option<T> flt(F<Double,T> f) { return none(); }
-    public <T> Option<T> floatStr(F<BigDecimal,T> f) { return none(); }
+    public <T> Option<T> flt(F<Number,T> f) { return none(); }
     public <T> Option<T> in(F<Integer,T> f) { return none(); }
     public <T> Option<T> atom(F2<String,Charset,T> f) {return none();}
     public <T> Option<T> big(F<BigInteger,T> f) { return none(); }
@@ -71,15 +68,9 @@ public class Term {
     }
 
     public static final class Flt extends Term {
-        final double v;
-        public Flt(double v) { super(v); this.v=v; }
-        public <T> Option<T> flt(F<Double,T> f) { return Option.some(f.f(v)); }
-    }
-
-    public static final class FloatStr extends Term {
-        final BigDecimal v;
-        public FloatStr(BigDecimal v) { super(v); this.v=v; }
-        public <T> Option<T> floatStr(F<BigDecimal,T> f) { return Option.some(f.f(v)); }
+        final Number v;
+        public Flt(Number v){ super(v); this.v = v; }
+        public <T> Option<T> flt(F<Number,T> f) { return Option.some(f.f(v)); }
     }
 
     public static final class Bin extends Term {
@@ -101,8 +92,6 @@ public class Term {
 
         public <T> Option<T> tup(F<List<Term>, T> f) { return Option.some(f.f(v)); }
         public Tuple ins(int index, Term x) { return new Tuple(v.snoc(x));};
-
-        @Override public String toString() {return v.toString();}
     }
 
     public static class Array extends Term {

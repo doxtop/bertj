@@ -15,13 +15,12 @@ public interface Dec<T> extends F<Term, Res<T>> {
     default Res<T> f(Term v) { return decode(v); }
     default <S> Dec<S> map(F<T,S> f) { return v -> this.decode(v).map(f); }
 
-    public static final Dec<String> stringDec = Term::str;
-    public static final Dec<byte[]> binDec = Term::bin;
-    public static final Dec<Double> floatDec = Term::flt;
-    public static final Dec<BigDecimal> floatSrtDec = Term::floatStr;
-    public static final Dec<Integer> intDec = Term::in;
-    public static final Dec<String> atomDec = Term::atom;
-    public static final Dec<BigInteger> bigDec = Term::big;
+    public static final Dec<String> stringDec   = Term::str;
+    public static final Dec<byte[]> binDec      = Term::bin;
+    public static final Dec<Number> floatDec    = Term::flt;
+    public static final Dec<Integer> intDec     = Term::in;
+    public static final Dec<String> atomDec     = Term::atom;
+    public static final Dec<BigInteger> bigDec  = Term::big;
 
     public static interface ElementDec<A> {
         Res<A> apply(List<Term> elements);

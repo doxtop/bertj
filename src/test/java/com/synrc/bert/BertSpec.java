@@ -145,7 +145,7 @@ public class BertSpec {
         final Dec<Roster> rosterDecoder = tuple(
             el(1, list(userDecoder)), 
             el(2, binDec),
-            el(3, floatDec),
+            el(3, floatDec.map(n->n.doubleValue())),
             el(4, intDec.map(i->i.byteValue())),
             el(5, intDec),
             el(6, atomDec),

@@ -6,7 +6,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.io.IOException;
-import java.util.HashMap;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
@@ -17,6 +16,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static com.synrc.bert.Term.*;
 
 public class Parser {
+
+    final static DecimalFormat fmt = new DecimalFormat();
+    
+    { fmt.setParseBigDecimal(true); }
+    
     final ByteBuffer buffer;
 
     private Parser(byte[] bin) {
@@ -30,10 +34,10 @@ public class Parser {
 
     private Term read() throws IOException, ParseException {
         switch(buffer.get() & 0xff) {
-            case 70:  return new Flt(buffer.getDouble());
+            case 70:  return new Flt(Double.valueOf(buffer.getDouble()));
             case 97:  return new Int(buffer.get() & 0xff);
             case 98:  return new Int(buffer.getInt());
-            case 99:  return floatStr();
+            case 99:  byte[] d = new byte[31]; buffer.get(d); return new Flt(fmt.parse(new String(d, ISO_8859_1)));
             case 100: return atom(buffer.getShort(), ISO_8859_1);
             case 104: return tup(buffer.get() & 0xff);
             case 105: return tup(buffer.getInt());
@@ -77,17 +81,6 @@ public class Parser {
         for(int i=len-1;i>=0;i--) lmag[len-i-1]=mag[i];
         BigInteger bi = new BigInteger(signum,lmag);
         return new Big(bi);
-    }
-
-    private FloatStr floatStr() throws ParseException {
-        byte[] fs = new byte[31];
-        buffer.get(fs);
-        final String s = new String(fs, ISO_8859_1);
-        BigDecimal bd = BigDecimal.ZERO;
-        DecimalFormat fmt = new DecimalFormat();
-        fmt.setParseBigDecimal(true);
-        bd = (BigDecimal) fmt.parse(s);
-        return new FloatStr(bd);
     }
 
     private Tuple tup(int arity) throws IOException, ParseException {
