@@ -1,7 +1,7 @@
 package com.synrc.bert;
 
 import fj.data.List;
-import fj.data.Either;
+import java.util.ArrayList;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
@@ -45,12 +45,12 @@ public class Parser {
             case 107: byte[] s = new byte[buffer.getShort()];buffer.get(s); return new Str(new String(s, ISO_8859_1));
             case 108: return list();
             case 109: byte[] bi = new byte[buffer.getInt()];buffer.get(bi); return new Bin(bi);
-            case 110: return big(buffer.get()& 0xff);
+            case 110: return big(buffer.get() & 0xff);
             case 111: return big(buffer.getInt());
-            case 115: return atom(buffer.get()& 0xff, ISO_8859_1); 
+            case 115: return atom(buffer.get() & 0xff, ISO_8859_1); 
             case 116: return map();
             case 118: return atom(buffer.getShort(), UTF_8);
-            case 119: return atom(buffer.get()& 0xff, UTF_8);
+            case 119: return atom(buffer.get() & 0xff, UTF_8);
             default: throw new RuntimeException("BERT?");
         }
     }
@@ -79,8 +79,8 @@ public class Parser {
         byte[] lmag = new byte[len];
         buffer.get(mag);
         for(int i=len-1;i>=0;i--) lmag[len-i-1]=mag[i];
-        BigInteger bi = new BigInteger(signum,lmag);
-        return new Big(bi);
+        
+        return new Big(new BigInteger(signum,lmag));
     }
 
     private Tuple tup(int arity) throws IOException, ParseException {
