@@ -98,7 +98,7 @@ public class Parser {
         for (int i = 0; i < length; i++) list = list.cons(read());
         
         final Array tail = (Array) read();
-        if (!tail.v.isEmpty()) {
+        if (!((List)tail.v).isEmpty()) {
             list = list.cons(tail);
         }
         return new Array(list.reverse());

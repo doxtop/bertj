@@ -44,7 +44,7 @@ public class Writer {
                     } else if (cs == UTF_8) {
                         if (size > 255) {
                             os.write(118);
-                            os.write((byte)(size >> 8));
+                            os.write((byte) (size >> 8));
                             os.write((byte) size);
                         } else {
                             os.write(119);
@@ -59,7 +59,7 @@ public class Writer {
                 return os;
             }).orElseGet(() -> bert.tup(terms -> {
                 int arity = terms.length();
-                if (arity > 255){
+                if (arity > 255) {
                     os.write(105);
                     writeInt(arity);
                 } else {
@@ -92,7 +92,7 @@ public class Writer {
                 os.write((byte)len);
                 try {
                     os.write(str);
-                } catch (IOException e){
+                } catch (IOException e) {
                     System.out.println("str not encoded:" + e.getMessage());
                 }
                 return os;
