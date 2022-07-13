@@ -2,3 +2,4 @@ target
 project/target
 project/build.properties
 .DS_Store
+.bsp

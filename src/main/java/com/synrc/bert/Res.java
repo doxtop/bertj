@@ -6,9 +6,10 @@ import fj.data.List;
 
 public class Res<T> {
     // use Either directly or collect errors in Validation...
-    final Either<String, T> res;
+    protected final Either<String, T> res;
 
     private Res(Either<String, T> res) { this.res = res; }
+    public Res(Res<T> r)               { this.res = r.res; }
 
     public static <T> Res<T> fail(String msg) { return new Res<>(Either.left(msg)); }
     public static <T> Res<T> ok(T x)          { return new Res<>(Either.right(x)); }

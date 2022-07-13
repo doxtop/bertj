@@ -12,9 +12,9 @@ lazy val root = (project in file("."))
       , testOptions += Tests.Argument(TestFrameworks.JUnit, "+q", "-v")
       , autoScalaLibrary := false
       , crossPaths := false
-      , fork in Test := false
-      , connectInput in test := true
-      , skip in publish := true
+      , Test / fork := false
+      , Test / connectInput := true
+      , publish / skip := true
       , libraryDependencies ++= Deps.tests
       , libraryDependencies ++= Seq(Deps.fj)
     )
